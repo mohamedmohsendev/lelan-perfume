@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-main: #1A1C1D;
+    --bg-card: #161819;
+    --border-color: #27282b;
+    --primary: #C6A664;
+    --highlight: #EAE0C8;
+    --text-primary: #F5F5F0;
+    --text-secondary: #7A7E83;
+  }
+
+  body.light {
+    --bg-main: #FDFDFD;
+    --bg-card: #FFFFFF;
+    --border-color: #E2E8F0;
+    --primary: #C6A664;
+    --highlight: #A88647;
+    --text-primary: #1A1C1D;
+    --text-secondary: #4A5568;
+  }
+
+  body {
+    @apply bg-background-dark text-text-primary antialiased;
+  }
+}
+
+@layer utilities {
+  .image-blend {
+    mix-blend-mode: lighten;
+  }
+
+  body.light .image-blend {
+    mix-blend-mode: multiply;
+  }
+}
