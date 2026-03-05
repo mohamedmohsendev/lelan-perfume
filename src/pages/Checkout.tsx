@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { ShoppingBag, ArrowRight, Banknote, Smartphone } from 'lucide-react';
-import { useProducts } from '../context/ProductContext';
+import { ShoppingBag, ArrowRight, Banknote, Smartphone, Plus, Minus } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useCart } from '../context/CartContext';
 
@@ -10,10 +8,8 @@ const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '201029449717';
 const VODAFONE_NUMBER = '01029449717';
 
 export const Checkout = () => {
-    const { products } = useProducts();
     const { t } = useLanguage();
-    const location = useLocation();
-    const { cartItems: globalCart, clearCart } = useCart();
+    const { cartItems: globalCart, clearCart, updateQuantity } = useCart();
 
     const [formData, setFormData] = useState({
         name: '',
@@ -24,19 +20,7 @@ export const Checkout = () => {
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
 
-    const locationState = location.state as { productId: string; quantity: number } | null;
-
     let cartItems: any[] = globalCart.map(item => ({ ...item.product, quantity: item.quantity }));
-
-    if (cartItems.length === 0) {
-        if (locationState?.productId) {
-            const p = products.find(prod => prod.id === locationState.productId);
-            if (p) cartItems = [{ ...p, quantity: locationState.quantity }];
-        } else if (products.length > 0) {
-            // Fallback demo item
-            cartItems = [{ ...products[0], quantity: 1 }];
-        }
-    }
 
     const total = cartItems.reduce((sum, item) => {
         const num = parseInt(item.price.replace(/[^0-9]/g, ''), 10);
@@ -225,11 +209,10 @@ export const Checkout = () => {
                         </div>
                     </div>
 
-                    {/* Submit button (outside card for full width) */}
                     <button
                         type="submit"
                         form="checkout-form"
-                        disabled={submitting}
+                        disabled={submitting || cartItems.length === 0}
                         className="w-full bg-[#25D366] text-white py-5 font-bold tracking-[0.15em] uppercase rounded flex items-center justify-center gap-3 hover:bg-[#128C7E] disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-lg"
                     >
                         {submitting ? (
@@ -260,7 +243,21 @@ export const Checkout = () => {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <h4 className="font-bold text-sm tracking-wide truncate">{item.name}</h4>
-                                        <p className="text-text-secondary text-xs mt-1 uppercase">Qty: {item.quantity || 1}</p>
+                                        <div className="flex items-center gap-3 mt-2">
+                                            <button
+                                                onClick={(e) => { e.preventDefault(); updateQuantity(item.id, (item.quantity || 1) - 1); }}
+                                                className="w-6 h-6 rounded border border-gray-700 flex items-center justify-center text-text-secondary hover:text-primary hover:border-primary transition-colors bg-background-dark"
+                                            >
+                                                <Minus size={12} />
+                                            </button>
+                                            <span className="text-xs font-bold w-4 text-center">{item.quantity || 1}</span>
+                                            <button
+                                                onClick={(e) => { e.preventDefault(); updateQuantity(item.id, (item.quantity || 1) + 1); }}
+                                                className="w-6 h-6 rounded border border-gray-700 flex items-center justify-center text-text-secondary hover:text-primary hover:border-primary transition-colors bg-background-dark"
+                                            >
+                                                <Plus size={12} />
+                                            </button>
+                                        </div>
                                     </div>
                                     <div className="text-highlight font-medium flex-shrink-0">{item.price}</div>
                                 </div>

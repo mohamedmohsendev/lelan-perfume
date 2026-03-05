@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ShoppingBag, ArrowLeft, Droplet, Wind, Sun, Heart, Minus, Plus, Truck, ShieldCheck } from 'lucide-react';
 import { useProducts } from '../context/ProductContext';
+import { useCart } from '../context/CartContext';
 
 export const ProductDetails = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const { products, loading } = useProducts();
+    const { addToCart } = useCart();
     const product = products.find(p => p.id === id);
 
     const [selectedImage, setSelectedImage] = useState(0);
@@ -160,14 +163,16 @@ export const ProductDetails = () => {
                         </button>
 
                         {/* Add to Cart */}
-                        <Link
-                            to="/checkout"
-                            state={{ productId: product.id, quantity }}
+                        <button
+                            onClick={() => {
+                                addToCart(product, quantity);
+                                navigate('/checkout');
+                            }}
                             className="flex-1 py-3.5 bg-primary text-black font-bold tracking-[0.12em] uppercase rounded flex items-center justify-center gap-2 hover:bg-highlight transition-colors text-sm shadow-lg shadow-primary/20"
                         >
                             <ShoppingBag size={16} />
                             Add to Cart
-                        </Link>
+                        </button>
 
                         {/* Quantity */}
                         <div className="flex items-center border border-border-color rounded overflow-hidden flex-shrink-0">
