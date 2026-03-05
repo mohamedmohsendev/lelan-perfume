@@ -162,6 +162,7 @@ export const ProductDetails = () => {
                         {/* Add to Cart */}
                         <Link
                             to="/checkout"
+                            state={{ productId: product.id, quantity }}
                             className="flex-1 py-3.5 bg-primary text-black font-bold tracking-[0.12em] uppercase rounded flex items-center justify-center gap-2 hover:bg-highlight transition-colors text-sm shadow-lg shadow-primary/20"
                         >
                             <ShoppingBag size={16} />

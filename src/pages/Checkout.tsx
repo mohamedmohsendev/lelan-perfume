@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { ShoppingBag, ArrowRight, Banknote, Smartphone } from 'lucide-react';
 import { useProducts } from '../context/ProductContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -10,6 +11,7 @@ const VODAFONE_NUMBER = '01029449717';
 export const Checkout = () => {
     const { products } = useProducts();
     const { t } = useLanguage();
+    const location = useLocation();
 
     const [formData, setFormData] = useState({
         name: '',
@@ -20,11 +22,20 @@ export const Checkout = () => {
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
 
-    // Use first product as a demo cart item (real cart context can extend this)
-    const cartItems = products.slice(0, 1);
+    const locationState = location.state as { productId: string; quantity: number } | null;
+
+    let cartItems: any[] = [];
+    if (locationState?.productId) {
+        const p = products.find(prod => prod.id === locationState.productId);
+        if (p) cartItems = [{ ...p, quantity: locationState.quantity }];
+    } else if (products.length > 0) {
+        // Fallback demo item
+        cartItems = [{ ...products[0], quantity: 1 }];
+    }
+
     const total = cartItems.reduce((sum, item) => {
         const num = parseInt(item.price.replace(/[^0-9]/g, ''), 10);
-        return sum + (isNaN(num) ? 0 : num);
+        return sum + (isNaN(num) ? 0 : num) * (item.quantity || 1);
     }, 0);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -59,24 +70,26 @@ export const Checkout = () => {
                 console.warn('Order API failed, continuing with WhatsApp anyway');
             }
 
-            // 2 — Open WhatsApp with pre-filled message including Order ID
-            let msg = `*طلب جديد - LALEN Perfumes*\n`;
-            msg += `*Order ID: #${orderId}*\n\n`;
-            msg += `*بيانات العميل / Customer Info:*\n`;
-            msg += `Name: ${formData.name}\n`;
-            msg += `Phone: ${formData.phone}\n`;
-            msg += `Address: ${formData.address}\n\n`;
+            // 2 — Open WhatsApp with user's requested template
+            let msg = `🌙 مرحباً بك في عالم LALEN العطري\n\n`;
+            msg += `يسعدنا إبلاغكم باستلام طلب جديد من صديقنا: ${formData.name}\n\n`;
+            msg += `📦 تفاصيل الشحنة:\n\n`;
+            msg += `الكود: #${orderId}\n\n`;
+            msg += `الموقع: ${formData.address}\n\n`;
+            msg += `رقم التواصل: ${formData.phone}\n\n`;
 
-            msg += `*المنتجات / Order Items:*\n`;
+            msg += `الطلب:\n`;
             cartItems.forEach(item => {
-                msg += `- ${item.name} (${item.price})\n`;
+                msg += `- ${item.quantity}x ${item.name} (${item.price})\n`;
             });
 
-            msg += `\n*الإجمالي / Total: ${total.toLocaleString()} EGP*`;
+            msg += `\n💰 القيمة الإجمالية: ${total.toLocaleString()} EGP\n\n`;
 
             if (formData.notes) {
-                msg += `\n\n*ملاحظات / Notes:* ${formData.notes}`;
+                msg += `📝 ملاحظات: ${formData.notes}\n\n`;
             }
+
+            msg += `✨ سيتم التواصل معكم قريباً لتأكيد موعد التسليم.`;
 
             const encoded = encodeURIComponent(msg);
             window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`, '_blank');
@@ -115,7 +128,7 @@ export const Checkout = () => {
                                         value={formData.name}
                                         onChange={handleInputChange}
                                         className="w-full bg-background-dark border border-gray-700 rounded p-4 text-text-primary focus:border-primary focus:outline-none transition-colors"
-                                        placeholder="محمد أحمد / John Doe"
+                                        placeholder=""
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -127,8 +140,11 @@ export const Checkout = () => {
                                         name="phone"
                                         value={formData.phone}
                                         onChange={handleInputChange}
+                                        pattern="^01[0125][0-9]{8}$"
+                                        title="أدخل رقم هاتف مصري صحيح يتكون من 11 رقم ويبدأ بـ 01"
                                         className="w-full bg-background-dark border border-gray-700 rounded p-4 text-text-primary focus:border-primary focus:outline-none transition-colors"
-                                        placeholder="+20 100 000 0000"
+                                        placeholder="01xxxxxxxxx"
+                                        dir="ltr"
                                     />
                                 </div>
                             </div>
@@ -235,7 +251,7 @@ export const Checkout = () => {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <h4 className="font-bold text-sm tracking-wide truncate">{item.name}</h4>
-                                        <p className="text-text-secondary text-xs mt-1 uppercase">Qty: 1</p>
+                                        <p className="text-text-secondary text-xs mt-1 uppercase">Qty: {item.quantity || 1}</p>
                                     </div>
                                     <div className="text-highlight font-medium flex-shrink-0">{item.price}</div>
                                 </div>
