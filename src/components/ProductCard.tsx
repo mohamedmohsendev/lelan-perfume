@@ -33,20 +33,21 @@ export const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
                 )}
             </div>
 
-            <div className="p-5 flex flex-col flex-1 border-t border-border-color/50">
+            <div className="p-5 flex flex-col flex-1 border-t border-border-color/50 text-center items-center">
                 <span className="text-[10px] uppercase tracking-[0.2em] text-primary mb-2 font-semibold">
                     {product.category}
                 </span>
-                <h3 className="text-base font-bold text-text-primary tracking-wide mb-1 line-clamp-1">
+                <h3 className="text-lg font-bold text-text-primary tracking-wide mb-2 line-clamp-1">
                     {product.name}
                 </h3>
                 {product.description && (
-                    <p className="text-sm text-text-secondary line-clamp-2 mb-3 leading-relaxed">
+                    <p className="text-sm text-text-secondary line-clamp-2 mb-4 leading-relaxed px-2">
                         {product.description}
                     </p>
                 )}
-                <div className="flex items-center gap-2 mb-5">
-                    <p className="text-highlight font-medium tracking-widest text-lg">
+
+                <div className="flex flex-col items-center gap-1 mb-6">
+                    <p className="text-highlight font-bold tracking-widest text-xl">
                         {product.price}
                     </p>
                     {product.oldPrice && (
