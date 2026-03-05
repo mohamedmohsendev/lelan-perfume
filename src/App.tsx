@@ -6,6 +6,7 @@ import { LanguageProvider } from './context/LanguageContext';
 import { ProductProvider } from './context/ProductContext';
 import { AuthProvider } from './context/AuthContext';
 import { SiteSettingsProvider } from './context/SiteSettingsContext';
+import { CartProvider } from './context/CartContext';
 import { MainLayout } from './components/layout/MainLayout';
 import { AdminLayout } from './components/layout/AdminLayout';
 
@@ -31,24 +32,26 @@ function App() {
         <ProductProvider>
           <AuthProvider>
             <SiteSettingsProvider>
-              <BrowserRouter>
-                <Suspense fallback={<SuspenseFallback />}>
-                  <Routes>
-                    <Route path="/" element={<MainLayout />}>
-                      <Route index element={<Home />} />
-                      <Route path="men" element={<Men />} />
-                      <Route path="women" element={<Women />} />
-                      <Route path="unisex" element={<Unisex />} />
-                      <Route path="product/:id" element={<ProductDetails />} />
-                      <Route path="checkout" element={<Checkout />} />
-                    </Route>
+              <CartProvider>
+                <BrowserRouter>
+                  <Suspense fallback={<SuspenseFallback />}>
+                    <Routes>
+                      <Route path="/" element={<MainLayout />}>
+                        <Route index element={<Home />} />
+                        <Route path="men" element={<Men />} />
+                        <Route path="women" element={<Women />} />
+                        <Route path="unisex" element={<Unisex />} />
+                        <Route path="product/:id" element={<ProductDetails />} />
+                        <Route path="checkout" element={<Checkout />} />
+                      </Route>
 
-                    <Route path="/admin" element={<AdminLayout />}>
-                      <Route index element={<AdminDashboard />} />
-                    </Route>
-                  </Routes>
-                </Suspense>
-              </BrowserRouter>
+                      <Route path="/admin" element={<AdminLayout />}>
+                        <Route index element={<AdminDashboard />} />
+                      </Route>
+                    </Routes>
+                  </Suspense>
+                </BrowserRouter>
+              </CartProvider>
             </SiteSettingsProvider>
           </AuthProvider>
         </ProductProvider>

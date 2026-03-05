@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { ShoppingBag, ArrowRight, Banknote, Smartphone } from 'lucide-react';
 import { useProducts } from '../context/ProductContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useCart } from '../context/CartContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '201029449717';
@@ -12,6 +13,7 @@ export const Checkout = () => {
     const { products } = useProducts();
     const { t } = useLanguage();
     const location = useLocation();
+    const { cartItems: globalCart, clearCart } = useCart();
 
     const [formData, setFormData] = useState({
         name: '',
@@ -24,13 +26,16 @@ export const Checkout = () => {
 
     const locationState = location.state as { productId: string; quantity: number } | null;
 
-    let cartItems: any[] = [];
-    if (locationState?.productId) {
-        const p = products.find(prod => prod.id === locationState.productId);
-        if (p) cartItems = [{ ...p, quantity: locationState.quantity }];
-    } else if (products.length > 0) {
-        // Fallback demo item
-        cartItems = [{ ...products[0], quantity: 1 }];
+    let cartItems: any[] = globalCart.map(item => ({ ...item.product, quantity: item.quantity }));
+
+    if (cartItems.length === 0) {
+        if (locationState?.productId) {
+            const p = products.find(prod => prod.id === locationState.productId);
+            if (p) cartItems = [{ ...p, quantity: locationState.quantity }];
+        } else if (products.length > 0) {
+            // Fallback demo item
+            cartItems = [{ ...products[0], quantity: 1 }];
+        }
     }
 
     const total = cartItems.reduce((sum, item) => {
@@ -92,6 +97,10 @@ export const Checkout = () => {
             msg += ` سيتم التواصل مع حضرتك في اسرع وقت لتأكيد الطلب  .`;
 
             const encoded = encodeURIComponent(msg);
+
+            // clear the cart after generating the message
+            clearCart();
+
             window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`, '_blank');
         } catch (err: unknown) {
             console.error('Order submission error:', err);

@@ -6,10 +6,13 @@ import { useTheme } from '../../context/ThemeContext';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import { ShoppingBag } from 'lucide-react';
 
+import { useCart } from '../../context/CartContext';
+
 export const MainLayout: React.FC = () => {
     const { language, toggleLanguage, t } = useLanguage();
     const { theme, toggleTheme } = useTheme();
     const { settings } = useSiteSettings();
+    const { cartCount } = useCart();
 
     return (
         <div className="min-h-screen flex flex-col bg-background-dark text-text-primary transition-colors">
@@ -41,8 +44,13 @@ export const MainLayout: React.FC = () => {
                     >
                         {language === 'EN' ? 'العربية' : 'EN'}
                     </button>
-                    <Link to="/checkout" className="hover:text-primary transition-colors">
+                    <Link to="/checkout" className="hover:text-primary transition-colors relative">
                         <ShoppingBag size={20} />
+                        {cartCount > 0 && (
+                            <span className="absolute -top-1.5 -right-2 bg-primary text-black text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                                {cartCount}
+                            </span>
+                        )}
                     </Link>
                 </div>
             </header>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag } from 'lucide-react';
+import { Plus } from 'lucide-react';
+import { useCart } from '../context/CartContext';
 
 export interface Product {
     id: string;
@@ -17,6 +18,8 @@ export interface Product {
 }
 
 export const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
+    const { addToCart } = useCart();
+
     return (
         <div className="group flex flex-col overflow-hidden rounded-lg border border-border-color/80 hover:border-primary/50 transition-all duration-300 bg-background-card hover:shadow-2xl hover:shadow-primary/5">
             <div className="relative aspect-[4/5] overflow-hidden bg-background-dark p-4 flex items-center justify-center">
@@ -57,13 +60,23 @@ export const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
                     )}
                 </div>
 
-                <Link
-                    to={`/product/${product.id}`}
-                    className="mt-auto flex items-center justify-center gap-2 w-full py-3 px-4 bg-transparent border border-primary/30 text-text-primary hover:bg-primary hover:text-black transition-all duration-300 rounded uppercase text-xs font-bold tracking-[0.15em] hover:border-primary"
-                >
-                    <ShoppingBag size={14} />
-                    Discover
-                </Link>
+                <div className="mt-auto flex items-center justify-between gap-3 w-full">
+                    <Link
+                        to={`/product/${product.id}`}
+                        className="flex-1 flex items-center justify-center py-3 px-4 bg-transparent border border-primary/30 text-text-primary hover:bg-primary hover:text-black transition-all duration-300 rounded uppercase text-xs font-bold tracking-[0.15em] hover:border-primary"
+                    >
+                        Discover
+                    </Link>
+                    <button
+                        onClick={(e) => {
+                            e.preventDefault();
+                            addToCart(product);
+                        }}
+                        className="w-12 h-12 flex items-center justify-center bg-transparent border border-primary/30 text-primary hover:bg-primary hover:text-black transition-all duration-300 rounded hover:border-primary shrink-0 group/btn"
+                    >
+                        <Plus size={20} className="group-hover/btn:scale-110 transition-transform" />
+                    </button>
+                </div>
             </div>
         </div>
     );
