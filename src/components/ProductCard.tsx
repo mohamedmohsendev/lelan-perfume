@@ -40,8 +40,13 @@ export const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
                 <h3 className="text-base font-bold text-text-primary tracking-wide mb-1 line-clamp-1">
                     {product.name}
                 </h3>
-                <div className="flex items-center gap-2 mb-6">
-                    <p className="text-highlight font-medium tracking-widest">
+                {product.description && (
+                    <p className="text-sm text-text-secondary line-clamp-2 mb-3 leading-relaxed">
+                        {product.description}
+                    </p>
+                )}
+                <div className="flex items-center gap-2 mb-5">
+                    <p className="text-highlight font-medium tracking-widest text-lg">
                         {product.price}
                     </p>
                     {product.oldPrice && (

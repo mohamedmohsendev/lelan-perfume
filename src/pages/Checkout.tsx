@@ -71,9 +71,9 @@ export const Checkout = () => {
             }
 
             // 2 — Open WhatsApp with user's requested template
-            let msg = `🌙 مرحباً بك في عالم LALEN العطري\n\n`;
-            msg += `يسعدنا إبلاغكم باستلام طلب جديد من صديقنا: ${formData.name}\n\n`;
-            msg += `📦 تفاصيل الشحنة:\n\n`;
+            let msg = ` مرحباً بك في عالم LALEN العطري\n\n`;
+            msg += `يسعدنا إبلاغكم باستلام طلب من حضرتك -ا/ : ${formData.name}\n\n`;
+            msg += ` تفاصيل الشحنة:\n\n`;
             msg += `الكود: #${orderId}\n\n`;
             msg += `الموقع: ${formData.address}\n\n`;
             msg += `رقم التواصل: ${formData.phone}\n\n`;
@@ -89,7 +89,7 @@ export const Checkout = () => {
                 msg += `📝 ملاحظات: ${formData.notes}\n\n`;
             }
 
-            msg += `✨ سيتم التواصل معكم قريباً لتأكيد موعد التسليم.`;
+            msg += ` سيتم التواصل مع حضرتك في اسرع وقت لتأكيد الطلب  .`;
 
             const encoded = encodeURIComponent(msg);
             window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`, '_blank');
