@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import type { Product } from '../components/ProductCard';
+import React, { createContext, useContext, useMemo } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type { Product } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -13,42 +14,45 @@ interface ProductContextType {
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [products, setProducts] = useState<Product[]>([]);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
 
-    const refreshProducts = async () => {
-        setLoading(true);
-        try {
+    // Fetch products with React Query
+    const { data: products = [], isLoading: loading, refetch } = useQuery({
+        queryKey: ['products'],
+        queryFn: async (): Promise<Product[]> => {
             const res = await fetch(`${API_URL}/api/products`);
             if (!res.ok) throw new Error('Failed to fetch products');
-            const data: Product[] = await res.json();
-            setProducts(data);
-        } catch (err) {
-            console.error('Could not fetch products:', err);
-            setProducts([]);
-        } finally {
-            setLoading(false);
-        }
-    };
+            return res.json();
+        },
+        staleTime: 1000 * 60 * 5, // 5 minutes
+    });
 
-    const deleteProduct = async (id: string) => {
-        const token = localStorage.getItem('lalen_admin_token');
-        try {
+    // Delete product mutation
+    const deleteMutation = useMutation({
+        mutationFn: async (id: string) => {
+            const token = localStorage.getItem('lalen_admin_token');
             const res = await fetch(`${API_URL}/api/products/${id}`, {
                 method: 'DELETE',
                 headers: token ? { 'Authorization': `Bearer ${token}` } : {},
             });
             if (!res.ok) throw new Error('Failed to delete');
-            setProducts(prev => prev.filter(p => p.id !== id));
-        } catch (err) {
-            console.error('Failed to delete product:', err);
-        }
-    };
+            return id;
+        },
+        onSuccess: () => {
+            // Invalidate and refetch products immediately
+            queryClient.invalidateQueries({ queryKey: ['products'] });
+        },
+    });
 
-    useEffect(() => { refreshProducts(); }, []);
+    const contextValue = useMemo(() => ({
+        products,
+        loading,
+        refreshProducts: async () => { await refetch(); },
+        deleteProduct: async (id: string) => { await deleteMutation.mutateAsync(id); }
+    }), [products, loading, refetch, deleteMutation]);
 
     return (
-        <ProductContext.Provider value={{ products, loading, refreshProducts, deleteProduct }}>
+        <ProductContext.Provider value={contextValue}>
             {children}
         </ProductContext.Provider>
     );

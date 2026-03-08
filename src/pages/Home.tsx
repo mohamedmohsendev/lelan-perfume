@@ -1,30 +1,39 @@
 import { useState } from 'react';
 import { ProductCard } from '../components/ProductCard';
 import { useProducts } from '../context/ProductContext';
+import { useLanguage } from '../context/LanguageContext';
 
 export const Home = () => {
     const { products, loading } = useProducts();
+    const { t } = useLanguage();
     const [filter, setFilter] = useState<string>('All');
-    const categories = ['All', 'Men', 'Women', 'Unisex'];
+
+    // Using mapping to pass the right keys for translation while keeping filter logic simple
+    const categories = [
+        { id: 'All', labelKey: 'home.all' },
+        { id: 'Men', labelKey: 'nav.men' },
+        { id: 'Women', labelKey: 'nav.women' },
+        { id: 'Unisex', labelKey: 'nav.unisex' }
+    ];
 
     const displayedProducts = filter === 'All'
         ? products
         : products.filter(p => p.category === filter);
 
     return (
-        <div className="flex flex-col md:flex-row gap-8 w-full mt-4">
-            <aside className="w-full md:w-56 flex-shrink-0">
-                <div className="sticky top-28 border border-border-color/80 rounded-lg p-6 bg-background-card shadow-xl">
-                    <h2 className="text-sm font-bold text-primary tracking-[0.2em] uppercase mb-8">Collections</h2>
-                    <div className="flex flex-col gap-2 font-medium text-sm">
+        <div className="flex flex-col md:flex-row-reverse gap-8 w-full mt-4 pb-12">
+            <aside className="hidden md:block md:w-64 flex-shrink-0">
+                <div className="sticky top-28 pe-6">
+                    <h2 className="text-sm font-bold text-highlight tracking-[0.2em] uppercase mb-6 pb-4 border-b border-border-color">{t('home.collections')}</h2>
+                    <div className="flex flex-col gap-1 font-medium text-sm">
                         {categories.map(cat => (
                             <button
-                                key={cat}
-                                onClick={() => setFilter(cat)}
-                                className={`text-left uppercase tracking-widest py-3 px-4 rounded text-xs transition-all duration-300 ${cat === filter ? 'text-primary bg-primary/10 border border-primary/20' : 'text-text-secondary border border-transparent hover:text-text-primary hover:bg-white/5'
+                                key={cat.id}
+                                onClick={() => setFilter(cat.id)}
+                                className={`text-left uppercase tracking-widest py-3 px-4 transition-all duration-300 border-l-2 rtl:text-right ${cat.id === filter ? 'text-primary border-primary bg-primary/5 font-bold' : 'text-text-secondary border-transparent hover:text-text-primary hover:bg-white/5 rtl:border-l-0 rtl:border-r-2'
                                     }`}
                             >
-                                {cat}
+                                {t(cat.labelKey)}
                             </button>
                         ))}
                     </div>
@@ -33,8 +42,9 @@ export const Home = () => {
 
             <div className="flex-1">
                 <div className="mb-8 flex items-end justify-between border-b border-border-color pb-4">
-                    <h1 className="text-2xl md:text-3xl font-bold uppercase tracking-[0.15em]">{filter === 'All' ? 'Boutique Collection' : filter}</h1>
-                    <span className="text-text-secondary text-sm font-semibold tracking-wider">{displayedProducts.length} Items</span>
+                    <h1 className="text-2xl md:text-3xl font-bold uppercase tracking-[0.15em]">
+                        {filter === 'All' ? t('home.title') : t(categories.find(c => c.id === filter)?.labelKey || '')}
+                    </h1>
                 </div>
 
                 {loading ? (
@@ -44,8 +54,8 @@ export const Home = () => {
                     </div>
                 ) : displayedProducts.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {displayedProducts.map(product => (
-                            <ProductCard key={product.id} product={product} />
+                        {displayedProducts.map((product, index) => (
+                            <ProductCard key={product.id} product={product} priority={index < 3} />
                         ))}
                     </div>
                 ) : (

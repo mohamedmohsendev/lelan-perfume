@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ShoppingBag, ArrowLeft, Droplet, Wind, Sun, Heart, Minus, Plus, Truck, ShieldCheck } from 'lucide-react';
 import { useProducts } from '../context/ProductContext';
@@ -14,6 +14,18 @@ export const ProductDetails = () => {
     const [selectedImage, setSelectedImage] = useState(0);
     const [quantity, setQuantity] = useState(1);
     const [liked, setLiked] = useState(false);
+
+    // Size Selection
+    const [selectedSize, setSelectedSize] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (product && !selectedSize) {
+            // Default select lowest available size if regular price isn't set, otherwise null
+            if (!product.price && product.price30ml) setSelectedSize('30ml');
+            else if (!product.price && product.price50ml) setSelectedSize('50ml');
+            else if (!product.price && product.price100ml) setSelectedSize('100ml');
+        }
+    }, [product, selectedSize]);
 
     if (loading) {
         return (
@@ -68,8 +80,9 @@ export const ProductDetails = () => {
                                         ? 'border-primary shadow-lg shadow-primary/20'
                                         : 'border-border-color hover:border-primary/50'
                                         }`}
+                                    aria-label={`View image ${i + 1}`}
                                 >
-                                    <img src={img} alt="" loading="lazy" className="w-full h-full object-contain" />
+                                    <img src={img} alt={`${product.name} view ${i + 1}`} loading="lazy" className="w-full h-full object-contain" />
                                 </button>
                             ))}
                         </div>
@@ -98,12 +111,60 @@ export const ProductDetails = () => {
                     )}
 
                     {/* Price */}
-                    <div className="flex items-baseline gap-4 mb-8">
-                        <span className="text-3xl font-bold text-highlight tracking-wide">{product.price}</span>
+                    <div className="flex items-baseline gap-4 mb-6">
+                        <span className="text-3xl font-bold text-highlight tracking-wide">
+                            {
+                                selectedSize === '30ml' && product.price30ml ? product.price30ml :
+                                    selectedSize === '50ml' && product.price50ml ? product.price50ml :
+                                        selectedSize === '100ml' && product.price100ml ? product.price100ml :
+                                            product.price
+                            }
+                        </span>
                         {product.oldPrice && (
                             <span className="text-lg text-text-secondary line-through">{product.oldPrice}</span>
                         )}
                     </div>
+
+                    {/* Size Selector */}
+                    {(product.price30ml || product.price50ml || product.price100ml) && (
+                        <div className="mb-8">
+                            <h3 className="text-xs uppercase tracking-widest text-text-secondary font-semibold mb-3">Select Size</h3>
+                            <div className="flex flex-wrap gap-3">
+                                {product.price && (
+                                    <button
+                                        onClick={() => setSelectedSize(null)}
+                                        className={`px-6 py-2 border rounded transition-colors text-sm font-bold tracking-wider uppercase ${selectedSize === null ? 'border-primary text-primary bg-primary/10' : 'border-border-color text-text-secondary hover:border-primary/50 hover:text-text-primary'}`}
+                                    >
+                                        Standard
+                                    </button>
+                                )}
+                                {product.price30ml && (
+                                    <button
+                                        onClick={() => setSelectedSize('30ml')}
+                                        className={`px-6 py-2 border rounded transition-colors text-sm font-bold tracking-wider uppercase ${selectedSize === '30ml' ? 'border-primary text-primary bg-primary/10' : 'border-border-color text-text-secondary hover:border-primary/50 hover:text-text-primary'}`}
+                                    >
+                                        30 ML
+                                    </button>
+                                )}
+                                {product.price50ml && (
+                                    <button
+                                        onClick={() => setSelectedSize('50ml')}
+                                        className={`px-6 py-2 border rounded transition-colors text-sm font-bold tracking-wider uppercase ${selectedSize === '50ml' ? 'border-primary text-primary bg-primary/10' : 'border-border-color text-text-secondary hover:border-primary/50 hover:text-text-primary'}`}
+                                    >
+                                        50 ML
+                                    </button>
+                                )}
+                                {product.price100ml && (
+                                    <button
+                                        onClick={() => setSelectedSize('100ml')}
+                                        className={`px-6 py-2 border rounded transition-colors text-sm font-bold tracking-wider uppercase ${selectedSize === '100ml' ? 'border-primary text-primary bg-primary/10' : 'border-border-color text-text-secondary hover:border-primary/50 hover:text-text-primary'}`}
+                                    >
+                                        100 ML
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Scent Pyramid */}
                     {(product.notesTop || product.notesHeart || product.notesBase) && (
@@ -158,6 +219,7 @@ export const ProductDetails = () => {
                                 ? 'border-red-500 bg-red-500/10 text-red-500'
                                 : 'border-border-color text-text-secondary hover:border-primary hover:text-primary'
                                 }`}
+                            aria-label={liked ? 'Remove from wishlist' : 'Add to wishlist'}
                         >
                             <Heart size={18} fill={liked ? 'currentColor' : 'none'} />
                         </button>
@@ -165,7 +227,13 @@ export const ProductDetails = () => {
                         {/* Add to Cart */}
                         <button
                             onClick={() => {
-                                addToCart(product, quantity);
+                                const finalPrice =
+                                    selectedSize === '30ml' && product.price30ml ? product.price30ml :
+                                        selectedSize === '50ml' && product.price50ml ? product.price50ml :
+                                            selectedSize === '100ml' && product.price100ml ? product.price100ml :
+                                                product.price;
+
+                                addToCart(product, quantity, selectedSize || undefined, finalPrice);
                                 navigate('/checkout');
                             }}
                             className="flex-1 py-3.5 bg-primary text-black font-bold tracking-[0.12em] uppercase rounded flex items-center justify-center gap-2 hover:bg-highlight transition-colors text-sm shadow-lg shadow-primary/20"
@@ -179,6 +247,7 @@ export const ProductDetails = () => {
                             <button
                                 onClick={() => setQuantity(q => Math.max(1, q - 1))}
                                 className="w-10 h-12 flex items-center justify-center text-text-secondary hover:text-primary hover:bg-white/5 transition-colors"
+                                aria-label="Decrease quantity"
                             >
                                 <Minus size={14} />
                             </button>
@@ -188,6 +257,7 @@ export const ProductDetails = () => {
                             <button
                                 onClick={() => setQuantity(q => q + 1)}
                                 className="w-10 h-12 flex items-center justify-center text-text-secondary hover:text-primary hover:bg-white/5 transition-colors"
+                                aria-label="Increase quantity"
                             >
                                 <Plus size={14} />
                             </button>

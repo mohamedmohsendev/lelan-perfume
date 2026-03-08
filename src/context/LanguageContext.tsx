@@ -41,6 +41,19 @@ const translations: Record<Language, Record<string, string>> = {
         'admin.price': 'Price (e.g. 3,200 EGP)',
         'admin.image': 'Product Image',
         'admin.chooseFile': 'Choose Image File',
+        // Home & General
+        'nav.wishlist': 'Wishlist',
+        'wishlist.empty': 'Your Wishlist is Empty',
+        'wishlist.emptyDesc': 'Explore our collections and find your signature scent.',
+        'home.title': 'Our Perfumes',
+        'home.collections': 'Collections',
+        'home.all': 'All',
+        'product.addToCart': 'Add to cart',
+        'footer.about': 'About Us',
+        'footer.desc': 'Discover the art of fine perfumery with our exclusive collection of luxury fragrances crafted for elegance and distinction.',
+        'footer.quickLinks': 'Quick Links',
+        'footer.contact': 'Contact Us',
+        'footer.followUs': 'Follow Us',
         'footer.rights': '© {year} LALEN Perfumes. All rights reserved.',
     },
     AR: {
@@ -81,6 +94,19 @@ const translations: Record<Language, Record<string, string>> = {
         'admin.price': 'السعر (مثال: 3,200 EGP)',
         'admin.image': 'صورة المنتج',
         'admin.chooseFile': 'اختر ملف الصورة',
+        // Home & General
+        'nav.wishlist': 'المفضلة',
+        'wishlist.empty': 'قائمة المفضلة فارغة',
+        'wishlist.emptyDesc': 'اكتشف مجموعاتنا واختر عطرك المفضل.',
+        'home.title': 'عطورنا',
+        'home.collections': 'مجموعاتنا',
+        'home.all': 'الكل',
+        'product.addToCart': 'إضافة للسلة',
+        'footer.about': 'من نحن',
+        'footer.desc': 'اكتشف فن العطور الفاخرة مع تشكيلتنا الحصرية المصممة خصيصاً للأناقة والتميز.',
+        'footer.quickLinks': 'روابط سريعة',
+        'footer.contact': 'تواصل معنا',
+        'footer.followUs': 'تابعنا',
         'footer.rights': '© {year} لالين للعطور. جميع الحقوق محفوظة.',
     },
 };
@@ -94,11 +120,14 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [language, setLanguage] = useState<Language>('EN');
+    const [language, setLanguage] = useState<Language>(() => {
+        return (localStorage.getItem('lalen-language') as Language) || 'EN';
+    });
 
     useEffect(() => {
         document.documentElement.dir = language === 'AR' ? 'rtl' : 'ltr';
         document.documentElement.lang = language.toLowerCase();
+        localStorage.setItem('lalen-language', language);
     }, [language]);
 
     const toggleLanguage = () => setLanguage(prev => (prev === 'EN' ? 'AR' : 'EN'));

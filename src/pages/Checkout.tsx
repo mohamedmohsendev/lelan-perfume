@@ -20,10 +20,17 @@ export const Checkout = () => {
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
 
-    let cartItems: any[] = globalCart.map(item => ({ ...item.product, quantity: item.quantity }));
+    const cartItems = globalCart.map(item => ({
+        ...item.product,
+        cartItemId: item.id,
+        quantity: item.quantity,
+        size: item.size,
+        sizePrice: item.sizePrice
+    }));
 
     const total = cartItems.reduce((sum, item) => {
-        const num = parseInt(item.price.replace(/[^0-9]/g, ''), 10);
+        const activePrice = item.sizePrice || item.price || '0';
+        const num = parseInt(activePrice.replace(/[^0-9]/g, ''), 10);
         return sum + (isNaN(num) ? 0 : num) * (item.quantity || 1);
     }, 0);
 
@@ -56,7 +63,10 @@ export const Checkout = () => {
                 const data = await res.json();
                 orderId = data.id?.slice(0, 8).toUpperCase() ?? 'N/A';
             } else {
-                console.warn('Order API failed, continuing with WhatsApp anyway');
+                const errData = await res.json().catch(() => ({}));
+                setSubmitError(errData.error || 'Failed to save order. Please try again.');
+                setSubmitting(false);
+                return; // Don't open WhatsApp if order wasn't saved
             }
 
             // 2 — Open WhatsApp with user's requested template
@@ -69,7 +79,9 @@ export const Checkout = () => {
 
             msg += `الطلب:\n`;
             cartItems.forEach(item => {
-                msg += `- ${item.quantity}x ${item.name} (${item.price})\n`;
+                const priceLabel = item.sizePrice || item.price;
+                const sizeLabel = item.size ? ` (${item.size})` : '';
+                msg += `- ${item.quantity}x ${item.name}${sizeLabel} (${priceLabel})\n`;
             });
 
             msg += `\n💰 القيمة الإجمالية: ${total.toLocaleString()} EGP\n\n`;
@@ -237,29 +249,34 @@ export const Checkout = () => {
 
                         <div className="space-y-6 mb-8">
                             {cartItems.map(item => (
-                                <div key={item.id} className="flex gap-4 items-center">
-                                    <div className="w-16 h-16 bg-background-dark rounded p-1 border border-gray-700 flex-shrink-0">
+                                <div key={item.cartItemId} className="flex gap-4 items-center">
+                                    <div className="w-16 h-16 bg-background-dark rounded p-1 border border-gray-700 flex-shrink-0 relative">
                                         <img src={item.imageUrl} alt={item.name} className="w-full h-full object-contain image-blend" />
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <h4 className="font-bold text-sm tracking-wide truncate">{item.name}</h4>
+                                        {item.size && (
+                                            <span className="text-xs text-primary font-bold tracking-wider uppercase bg-primary/10 px-2 py-0.5 rounded mt-1 inline-block">
+                                                {item.size}
+                                            </span>
+                                        )}
                                         <div className="flex items-center gap-3 mt-2">
                                             <button
-                                                onClick={(e) => { e.preventDefault(); updateQuantity(item.id, (item.quantity || 1) - 1); }}
+                                                onClick={(e) => { e.preventDefault(); updateQuantity(item.cartItemId, (item.quantity || 1) - 1); }}
                                                 className="w-6 h-6 rounded border border-gray-700 flex items-center justify-center text-text-secondary hover:text-primary hover:border-primary transition-colors bg-background-dark"
                                             >
                                                 <Minus size={12} />
                                             </button>
                                             <span className="text-xs font-bold w-4 text-center">{item.quantity || 1}</span>
                                             <button
-                                                onClick={(e) => { e.preventDefault(); updateQuantity(item.id, (item.quantity || 1) + 1); }}
+                                                onClick={(e) => { e.preventDefault(); updateQuantity(item.cartItemId, (item.quantity || 1) + 1); }}
                                                 className="w-6 h-6 rounded border border-gray-700 flex items-center justify-center text-text-secondary hover:text-primary hover:border-primary transition-colors bg-background-dark"
                                             >
                                                 <Plus size={12} />
                                             </button>
                                         </div>
                                     </div>
-                                    <div className="text-highlight font-medium flex-shrink-0">{item.price}</div>
+                                    <div className="text-highlight font-medium flex-shrink-0">{item.sizePrice || item.price}</div>
                                 </div>
                             ))}
                         </div>

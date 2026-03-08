@@ -1,4 +1,4 @@
-import type { Product } from '../components/ProductCard';
+import type { Product } from '../types';
 
 export const mockProducts: Product[] = [
     { id: '1', name: 'Oud Noir Edition', category: 'Men', price: '3,200 EGP', imageUrl: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=800&auto=format&fit=crop' },
