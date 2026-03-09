@@ -1,7 +1,6 @@
 import React from 'react';
+import * as RDR from 'react-date-range';
 import { Calendar } from 'lucide-react';
-// @ts-ignore
-import { DateRange } from 'react-date-range';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import { format } from 'date-fns';
@@ -14,9 +13,8 @@ interface DateRangeFilterProps {
 export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({ range, setRange }) => {
     const [isOpen, setIsOpen] = React.useState(false);
 
-    // Handling potential CommonJS/ESM interop issues for react-date-range
-    // In some environments, DateRange might be under .default
-    const DateRangeComponent = (DateRange as any).default || DateRange;
+    // Robust interop for react-date-range which often has issues in Vite production builds
+    const DateRangeComponent = (RDR as any).DateRange || (RDR as any).default?.DateRange || (RDR as any).default;
 
     return (
         <div className="relative">
