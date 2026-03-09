@@ -1,7 +1,5 @@
 import React from 'react';
-import * as RechartsModule from 'recharts';
-// @ts-ignore
-const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } = (RechartsModule.default || RechartsModule) as any;
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 // ألوان براند لاليان (تدرجات الذهبي)
 const COLORS = ['#d4af37', '#b8860b', '#daa520', '#ffd700', '#eee8aa'];

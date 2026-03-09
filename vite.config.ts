@@ -4,6 +4,9 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  optimizeDeps: {
+    include: ['recharts', 'react-date-range', 'date-fns'],
+  },
   server: {
     proxy: {
       '/api': {
@@ -13,6 +16,10 @@ export default defineConfig({
     },
   },
   build: {
+    commonjsOptions: {
+      include: [/recharts/, /react-date-range/],
+      transformMixedEsModules: true,
+    },
     rollupOptions: {
       output: {
         manualChunks: {

@@ -1,5 +1,5 @@
 import React from 'react';
-import * as RDR from 'react-date-range';
+import { DateRange } from 'react-date-range';
 import { Calendar } from 'lucide-react';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
@@ -12,9 +12,6 @@ interface DateRangeFilterProps {
 
 export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({ range, setRange }) => {
     const [isOpen, setIsOpen] = React.useState(false);
-
-    // Robust interop for react-date-range which often has issues in Vite production builds
-    const DateRangeComponent = (RDR as any).DateRange || (RDR as any).default?.DateRange || (RDR as any).default;
 
     return (
         <div className="relative">
@@ -30,7 +27,7 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({ range, setRang
 
             {isOpen && (
                 <div className="absolute top-full mt-2 right-0 z-50 bg-[#1a1a1a] border border-border-color rounded-xl shadow-2xl p-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                    <DateRangeComponent
+                    <DateRange
                         ranges={range}
                         onChange={(item: any) => setRange([item.selection])}
                         moveRangeOnFirstSelection={false}

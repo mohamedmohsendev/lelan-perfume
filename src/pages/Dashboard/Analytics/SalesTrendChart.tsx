@@ -1,7 +1,5 @@
 import React from 'react';
-import * as RechartsModule from 'recharts';
-// @ts-ignore
-const { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } = (RechartsModule.default || RechartsModule) as any;
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 interface SalesTrendChartProps {
     data: any[];
