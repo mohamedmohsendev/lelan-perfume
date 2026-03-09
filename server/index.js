@@ -4,7 +4,6 @@ import cors from 'cors';
 import multer from 'multer';
 import jwt from 'jsonwebtoken';
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
 import compression from 'compression';
 import sharp from 'sharp';
 import { createClient } from '@supabase/supabase-js';
@@ -38,6 +37,49 @@ const upload = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
 });
+
+// ── Mapping Helpers ───────────────────────────────────────────────────────────
+
+// Map from DB (snake_case) to Frontend (camelCase)
+function mapProductFromDB(p) {
+    if (!p) return null;
+    return {
+        id: p.id,
+        name: p.name,
+        category: p.category,
+        price: p.price,
+        price30ml: p.price_30ml || '',
+        price50ml: p.price_50ml || '',
+        price100ml: p.price_100ml || '',
+        oldPrice: p.old_price || '',
+        description: p.description || '',
+        imageUrl: p.image_url || '',
+        images: p.images || [],
+        notesTop: p.notes_top || '',
+        notesHeart: p.notes_heart || '',
+        notesBase: p.notes_base || '',
+        created_at: p.created_at
+    };
+}
+
+// Map from Frontend (camelCase) to DB (snake_case)
+function mapProductToDB(body) {
+    return {
+        name: body.name,
+        category: body.category,
+        price: body.price,
+        price_30ml: body.price30ml || '',
+        price_50ml: body.price50ml || '',
+        price_100ml: body.price100ml || '',
+        old_price: body.oldPrice || '',
+        description: body.description || '',
+        image_url: body.imageUrl || '',
+        images: body.images || [],
+        notes_top: body.notesTop || '',
+        notes_heart: body.notesHeart || '',
+        notes_base: body.notesBase || ''
+    };
+}
 
 // ── Helper: uploadToStorage ───────────────────────────────────────────────────
 async function uploadToStorage(file) {
@@ -92,7 +134,7 @@ app.get('/api/products', async (req, res) => {
     try {
         const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
         if (error) throw error;
-        res.json(data || []);
+        res.json((data || []).map(mapProductFromDB));
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -102,7 +144,7 @@ app.get('/api/products/:id', async (req, res) => {
     try {
         const { data, error } = await supabase.from('products').select('*').eq('id', req.params.id).single();
         if (error) throw error;
-        res.json(data);
+        res.json(mapProductFromDB(data));
     } catch (err) {
         res.status(404).json({ error: 'Product not found' });
     }
@@ -118,15 +160,15 @@ app.post('/api/products', requireAdmin, upload.array('images', 5), async (req, r
             }
         }
 
-        const productData = {
-            ...req.body,
-            images: imageUrls,
-            image_url: imageUrls[0] || req.body.image_url || ''
-        };
+        const mappedData = mapProductToDB(req.body);
+        if (imageUrls.length > 0) {
+            mappedData.images = imageUrls;
+            mappedData.image_url = imageUrls[0];
+        }
 
-        const { data, error } = await supabase.from('products').insert([productData]).select().single();
+        const { data, error } = await supabase.from('products').insert([mappedData]).select().single();
         if (error) throw error;
-        res.status(201).json(data);
+        res.status(201).json(mapProductFromDB(data));
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -142,16 +184,17 @@ app.put('/api/products/:id', requireAdmin, upload.array('images', 5), async (req
             }
         }
 
-        const updates = {
-            ...req.body,
-            images: allImages,
-            image_url: allImages[0] || req.body.image_url || ''
-        };
-        delete updates.existingImages;
+        const mappedData = mapProductToDB(req.body);
+        mappedData.images = allImages;
+        if (allImages.length > 0) {
+            mappedData.image_url = allImages[0];
+        } else if (req.body.imageUrl) {
+            mappedData.image_url = req.body.imageUrl;
+        }
 
-        const { data, error } = await supabase.from('products').update(updates).eq('id', req.params.id).select().single();
+        const { data, error } = await supabase.from('products').update(mappedData).eq('id', req.params.id).select().single();
         if (error) throw error;
-        res.json(data);
+        res.json(mapProductFromDB(data));
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -200,7 +243,7 @@ app.put('/api/admin/orders/:id/status', requireAdmin, async (req, res) => {
 
 app.delete('/api/admin/orders/clear-all', requireAdmin, async (req, res) => {
     try {
-        const { error } = await supabase.from('orders').delete().gt('id', 0); // Placeholder for clear all logic
+        const { error } = await supabase.from('orders').delete().gt('total', -1);
         if (error) throw error;
         res.json({ success: true });
     } catch (err) {
@@ -285,6 +328,13 @@ app.use((req, res) => {
 });
 
 // ── Start Server ──────────────────────────────────────────────────────────────
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, '0.0.0.0', async () => {
     console.log(`✅ LALEN API is running on port ${PORT}`);
+    try {
+        const { count, error } = await supabase.from('products').select('*', { count: 'exact', head: true });
+        if (error) console.error('❌ Supabase Products Error:', error.message);
+        else console.log(`📊 Products in Database: ${count}`);
+    } catch (e) {
+        console.error('❌ Startup Check Failed:', e.message);
+    }
 });
