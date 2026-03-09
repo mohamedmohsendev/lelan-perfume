@@ -1,14 +1,7 @@
 import React from 'react';
-import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer,
-    Cell
-} from 'recharts';
+import * as RechartsModule from 'recharts';
+// @ts-ignore
+const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } = (RechartsModule.default || RechartsModule) as any;
 
 // ألوان براند لاليان (تدرجات الذهبي)
 const COLORS = ['#d4af37', '#b8860b', '#daa520', '#ffd700', '#eee8aa'];
@@ -66,7 +59,7 @@ export const TopProductsChart: React.FC<TopProductsChartProps> = ({ data }) => {
                             formatter={(value: any) => [`${value} Units`, 'Sold']}
                         />
                         <Bar
-                            dataKey="total_sold"
+                            dataKey="qty"
                             radius={[0, 4, 4, 0]}
                             barSize={30}
                         >

@@ -261,6 +261,36 @@ app.delete('/api/admin/orders/:id', requireAdmin, async (req, res) => {
     }
 });
 
+app.get('/api/admin/orders/export', requireAdmin, async (req, res) => {
+    try {
+        const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+            return res.status(404).json({ error: 'No orders found' });
+        }
+
+        const headers = ['Order ID', 'Customer Name', 'Phone', 'Address', 'Status', 'Total', 'Date'];
+        const csvRows = data.map(o => [
+            o.id,
+            o.customer_name,
+            o.phone,
+            `"${(o.address || '').replace(/"/g, '""')}"`,
+            o.status,
+            o.total,
+            new Date(o.created_at).toISOString()
+        ]);
+
+        const csvString = [headers.join(','), ...csvRows.map(row => row.join(','))].join('\n');
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename=orders-${new Date().toISOString().split('T')[0]}.csv`);
+        res.send(csvString);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // ── Analytics Routes ──────────────────────────────────────────────────────────
 app.get('/api/admin/analytics/daily-sales', requireAdmin, async (req, res) => {
     try {

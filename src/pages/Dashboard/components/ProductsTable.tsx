@@ -41,7 +41,8 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                 </motion.button>
             </div>
 
-            <div className="overflow-x-auto custom-scrollbar">
+            {/* Desktop Table View - Hidden on mobile */}
+            <div className="overflow-x-auto custom-scrollbar hidden md:block">
                 {loading ? (
                     <div className="p-20 text-center">
                         <div className="flex flex-col items-center gap-4">
@@ -107,7 +108,7 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-2 text-text-secondary">
                                                 <Package size={14} className="text-primary/60" />
-                                                <span className="text-xs font-bold tracking-widest uppercase">{(product.images || []).length} Masterpieces</span>
+                                                <span className="text-xs font-bold tracking-widest uppercase">{(product.images || []).length} Variants</span>
                                             </div>
                                         </td>
                                         <td className="px-8 py-6 text-right">
@@ -144,21 +145,72 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                         </tbody>
                     </table>
                 )}
-                {!loading && products.length === 0 && (
-                    <div className="p-24 text-center">
-                        <div className="max-w-xs mx-auto space-y-4">
-                            <div className="w-20 h-20 bg-primary/5 rounded-full flex items-center justify-center mx-auto border border-primary/10">
-                                <Package size={32} className="text-primary/30" />
-                            </div>
-                            <h3 className="text-lg font-bold text-text-primary tracking-widest uppercase">No collections found</h3>
-                            <p className="text-text-secondary text-sm">Begin your luxury journey by adding your first masterpiece to the collection.</p>
-                            <button onClick={onAddProduct} className="text-primary font-bold text-xs tracking-widest uppercase hover:text-highlight transition-colors flex items-center gap-2 mx-auto mt-4">
-                                <Plus size={14} /> Add Product
-                            </button>
-                        </div>
-                    </div>
+            </div>
+
+            {/* Mobile Card View - Visible only on small screens */}
+            <div className="md:hidden p-4 space-y-4">
+                {loading ? (
+                    <div className="p-12 text-center text-text-secondary animate-pulse tracking-widest uppercase text-xs">Curating products...</div>
+                ) : (
+                    <AnimatePresence>
+                        {products.map((product, index) => (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: index * 0.05 }}
+                                key={product.id}
+                                className="bg-background-dark/40 rounded-2xl border border-border-color/30 overflow-hidden shadow-xl"
+                            >
+                                <div className="flex p-4 gap-4">
+                                    <div
+                                        onClick={() => onEditProduct(product)}
+                                        className="w-24 h-24 rounded-xl border border-border-color/20 bg-background-dark overflow-hidden flex items-center justify-center p-2 flex-shrink-0"
+                                    >
+                                        <img src={product.imageUrl} alt={product.name} className="w-full h-full object-contain" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex justify-between items-start mb-1">
+                                            <span className="text-[9px] font-black tracking-widest uppercase text-primary px-2 py-0.5 bg-primary/10 rounded">
+                                                {product.category}
+                                            </span>
+                                            <div className="flex gap-1">
+                                                <button onClick={() => onEditProduct(product)} className="p-2 text-text-secondary active:text-primary"><Edit2 size={16} /></button>
+                                                <button onClick={() => onDeleteProduct(product.id, product.name)} className="p-2 text-text-secondary active:text-red-500"><Trash2 size={16} /></button>
+                                            </div>
+                                        </div>
+                                        <h3 className="font-bold text-text-primary truncate">{product.name}</h3>
+                                        <div className="mt-2 flex items-end justify-between">
+                                            <div>
+                                                <div className="text-highlight font-black text-lg leading-none">{product.price}</div>
+                                                {product.oldPrice && <div className="text-[10px] text-text-secondary line-through opacity-50">{product.oldPrice}</div>}
+                                            </div>
+                                            <div className="text-[9px] text-text-secondary font-bold uppercase tracking-widest flex items-center gap-1">
+                                                <Package size={12} className="text-primary/50" />
+                                                {(product.images || []).length} VARIANTS
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
                 )}
             </div>
+
+            {!loading && products.length === 0 && (
+                <div className="p-24 text-center">
+                    <div className="max-w-xs mx-auto space-y-4">
+                        <div className="w-20 h-20 bg-primary/5 rounded-full flex items-center justify-center mx-auto border border-primary/10">
+                            <Package size={32} className="text-primary/30" />
+                        </div>
+                        <h3 className="text-lg font-bold text-text-primary tracking-widest uppercase">No collections found</h3>
+                        <p className="text-text-secondary text-sm">Begin your luxury journey by adding your first masterpiece to the collection.</p>
+                        <button onClick={onAddProduct} className="text-primary font-bold text-xs tracking-widest uppercase hover:text-highlight transition-colors flex items-center gap-2 mx-auto mt-4">
+                            <Plus size={14} /> Add Product
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { createClient } from '@supabase/supabase-js';
 import fs from 'fs';
 
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+const supabase = createClient(process.env.SUPABASE_URL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNxb3BzbXVqdmZkZmt5YWxscG16Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1Nzk3MTcsImV4cCI6MjA4ODE1NTcxN30._tk7GOJVISfGbi7tw9GZjrWD-e1bB6eBexkQGM57l9Y');
 
 async function main() {
     let report = '--- DIAGNOSTIC REPORT ---\n';

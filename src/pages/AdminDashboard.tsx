@@ -4,7 +4,7 @@ import { Package, ShoppingCart, TrendingUp, BarChart3, Settings, Calendar } from
 import { useSearchParams } from 'react-router-dom';
 
 // Components
-import { AnalyticsDashboard } from './Dashboard/Analytics/AnalyticsDashboard';
+import { AnalyticsDashboard } from './Dashboard/Analytics/AnalyticsDashboard.tsx';
 import { DashboardStats } from './Dashboard/components/DashboardStats';
 import { OrdersTable } from './Dashboard/components/OrdersTable';
 import { ProductsTable } from './Dashboard/components/ProductsTable';
@@ -288,19 +288,25 @@ export const AdminDashboard = () => {
                 <p className="text-text-secondary">Welcome back, Admin.</p>
             </div>
 
-            {/* Tabs Navigation */}
-            <div className="flex flex-wrap gap-1 mb-6 bg-background-card rounded-lg p-1 border border-border-color w-fit">
+            {/* Tabs Navigation - Scrollable on mobile */}
+            <div className="flex overflow-x-auto no-scrollbar gap-2 mb-8 pb-1 -mx-4 px-4 md:mx-0 md:px-0">
                 {[
                     { id: 'dashboard', label: 'Dashboard', icon: <TrendingUp size={16} /> },
                     { id: 'orders', label: 'Orders', icon: <ShoppingCart size={16} /> },
                     { id: 'products', label: 'Products', icon: <Package size={16} /> },
                     { id: 'analytics', label: 'Analytics', icon: <BarChart3 size={16} /> },
-                    { id: 'settings', label: 'Site Settings', icon: <Settings size={16} /> },
+                    { id: 'settings', label: 'Settings', icon: <Settings size={16} /> },
                 ].map(tab => (
                     <button
                         key={tab.id}
                         onClick={() => handleTabChange(tab.id as Tab)}
-                        className={`flex items-center gap-2 px-5 py-2.5 rounded text-sm font-bold tracking-wider uppercase transition-all ${activeTab === tab.id ? 'bg-primary text-black' : 'text-text-secondary hover:text-primary'}`}
+                        className={`
+                            flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] md:text-sm font-black tracking-[0.15em] uppercase transition-all whitespace-nowrap border
+                            ${activeTab === tab.id
+                                ? 'bg-primary text-black border-primary shadow-lg shadow-primary/20 scale-105 z-10'
+                                : 'text-text-secondary border-border-color/10 hover:border-primary/30 hover:text-primary active:scale-95'
+                            }
+                        `}
                     >
                         {tab.icon} {tab.label}
                     </button>

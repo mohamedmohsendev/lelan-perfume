@@ -1,9 +1,9 @@
 -- RPC function to fetch top 5 products by unnesting the cart jsonb
 CREATE OR REPLACE FUNCTION get_top_products(start_date timestamp, end_date timestamp)
 RETURNS TABLE (
-  product_name text,
-  total_quantity bigint,
-  total_revenue numeric
+  name text,
+  qty bigint,
+  rev numeric
 ) LANGUAGE plpgsql AS $$
 BEGIN
   RETURN QUERY

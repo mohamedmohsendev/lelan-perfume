@@ -1,3 +1,4 @@
-// This file is deprecated. Please use the .tsx version.
-export const AnalyticsDashboard = () => null;
+
+export * from './AnalyticsDashboard.tsx';
+import AnalyticsDashboard from './AnalyticsDashboard.tsx';
 export default AnalyticsDashboard;

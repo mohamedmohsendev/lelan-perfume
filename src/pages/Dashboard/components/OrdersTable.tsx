@@ -64,94 +64,96 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                 </div>
             </div>
 
-            <div className="flex-1 overflow-auto">
+            {/* Desktop Table View - Hidden on mobile */}
+            <div className="flex-1 overflow-auto hidden md:block">
                 {loading ? (
-                    <div className="p-12 text-center text-text-secondary">Loading orders...</div>
+                    <div className="p-12 text-center text-text-secondary italic tracking-widest uppercase text-xs">Curating orders...</div>
                 ) : (
                     <table className="w-full text-left border-collapse min-w-[800px]">
-                        <thead className="bg-gray-100 dark:bg-[#1A1C1D] text-text-secondary uppercase text-[10px] sm:text-xs tracking-widest sticky top-0 z-10 shadow-sm">
+                        <thead className="bg-background-dark text-text-secondary uppercase text-[10px] tracking-[0.2em] font-black border-b border-border-color/20 sticky top-0 z-10">
                             <tr>
-                                <th className="p-4 font-semibold whitespace-nowrap">Order ID / Date</th>
-                                <th className="p-4 font-semibold">Customer</th>
-                                <th className="p-4 font-semibold">Items</th>
-                                <th className="p-4 font-semibold whitespace-nowrap">Total</th>
-                                <th className="p-4 font-semibold">Status</th>
+                                <th className="p-6 font-semibold whitespace-nowrap">Order / Date</th>
+                                <th className="p-6 font-semibold">Customer</th>
+                                <th className="p-6 font-semibold text-center">Items</th>
+                                <th className="p-6 font-semibold whitespace-nowrap">Total</th>
+                                <th className="p-6 font-semibold text-right">Status</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-border-color text-sm">
+                        <tbody className="divide-y divide-border-color/10 text-sm">
                             {filteredOrders.map(order => (
-                                <tr key={order.id} className="hover:bg-white/5 transition-colors group">
-                                    <td className="p-4 align-top">
-                                        <div className="font-mono text-xs text-primary mb-1">
-                                            #{order.id.split('-')[0].toUpperCase()}
+                                <tr key={order.id} className="hover:bg-primary/[0.02] transition-colors group">
+                                    <td className="p-6 align-top">
+                                        <div className="font-black text-primary text-xs tracking-widest mb-1 uppercase">
+                                            #{order.id.split('-')[0]}
                                         </div>
-                                        <div className="text-[11px] text-text-secondary">
+                                        <div className="text-[10px] text-text-secondary font-bold tracking-wider uppercase opacity-60">
                                             {new Date(order.created_at).toLocaleString('en-US', {
-                                                year: 'numeric', month: 'short', day: 'numeric',
+                                                month: 'short', day: 'numeric',
                                                 hour: '2-digit', minute: '2-digit'
                                             })}
                                         </div>
                                     </td>
-                                    <td className="p-4 align-top">
-                                        <div className="font-bold text-text-primary mb-1">{order.customer_name}</div>
-                                        <div className="text-xs text-text-secondary mb-1">{order.phone}</div>
-                                        <div className="text-[11px] text-text-secondary max-w-[200px] truncate" title={order.address}>
+                                    <td className="p-6 align-top">
+                                        <div className="font-bold text-text-primary mb-1 tracking-wide">{order.customer_name}</div>
+                                        <div className="text-xs text-text-secondary font-medium mb-1">{order.phone}</div>
+                                        <div className="text-[10px] text-text-secondary opacity-70 tracking-tight" title={order.address}>
                                             {order.address}
                                         </div>
                                     </td>
-                                    <td className="p-4 align-top">
-                                        <div className="space-y-1 max-h-20 overflow-y-auto pr-2 custom-scrollbar">
+                                    <td className="p-6 align-top">
+                                        <div className="space-y-1.5 max-h-24 overflow-y-auto pr-2 custom-scrollbar">
                                             {order.cart?.map((item, idx) => (
-                                                <div key={idx} className="flex justify-between items-start text-[11px] bg-white dark:bg-[#1A1C1D] text-gray-900 dark:text-gray-100 p-2 rounded shadow-sm border border-border-color">
-                                                    <span className="truncate pr-2 font-medium">
+                                                <div key={idx} className="flex justify-between items-center text-[10px] bg-background-dark/30 p-2 rounded border border-border-color/10">
+                                                    <span className="truncate pr-2 font-black tracking-wider uppercase">
                                                         {item.quantity}x {item.name || item.product?.name || 'N/A'}
                                                         {item.size ? ` (${item.size})` : ''}
                                                     </span>
-                                                    <span className="text-highlight font-bold whitespace-nowrap mt-[1px]">
+                                                    <span className="text-highlight font-black whitespace-nowrap">
                                                         {item.sizePrice || item.price || item.product?.price}
                                                     </span>
                                                 </div>
                                             ))}
                                         </div>
                                         {order.notes && (
-                                            <div className="mt-2 text-[10px] text-[#C6A664] bg-[#C6A664]/5 p-2 rounded border border-[#C6A664]/20 font-medium">
+                                            <div className="mt-2 text-[9px] text-primary/80 bg-primary/5 p-2 rounded border border-primary/20 italic font-medium leading-relaxed">
                                                 Note: {order.notes}
                                             </div>
                                         )}
                                     </td>
-                                    <td className="p-4 align-top">
-                                        <span className="font-bold text-highlight text-base">
-                                            {order.total.toLocaleString()}
-                                        </span>
-                                        <span className="text-xs text-text-secondary ml-1">EGP</span>
+                                    <td className="p-6 align-top">
+                                        <div className="flex flex-col">
+                                            <span className="font-black text-highlight text-lg tracking-wider">
+                                                {order.total.toLocaleString()}
+                                            </span>
+                                            <span className="text-[10px] text-text-secondary font-bold tracking-widest uppercase opacity-50">EGP</span>
+                                        </div>
                                     </td>
-                                    <td className="p-4 align-top">
-                                        <div className="flex flex-col gap-2">
+                                    <td className="p-6 align-top text-right">
+                                        <div className="flex flex-col items-end gap-3">
                                             <select
                                                 value={order.status}
                                                 onChange={(e) => onUpdateStatus(order.id, e.target.value)}
                                                 className={`
-                                                text-xs font-bold tracking-wider uppercase px-3 py-1.5 rounded-full border outline-none cursor-pointer appearance-none transition-colors w-full
-                                                ${order.status === 'معلق' ? 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 border-yellow-500/20 hover:border-yellow-500/50' : ''}
-                                                ${order.status === 'تم تأكيده' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-500 border-blue-500/20 hover:border-blue-500/50' : ''}
-                                                ${order.status === 'تم توصيله' ? 'bg-green-500/10 text-green-600 dark:text-green-500 border-green-500/20 hover:border-green-500/50' : ''}
-                                                ${order.status === 'تم ارجاعه' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-500 border-purple-500/20 hover:border-purple-500/50' : ''}
-                                                ${order.status === 'لم يتم' ? 'bg-red-500/10 text-red-600 dark:text-red-500 border-red-500/20 hover:border-red-500/50' : ''}
+                                                text-[10px] font-black tracking-[0.15em] uppercase px-4 py-2 rounded-full border-2 outline-none cursor-pointer appearance-none transition-all text-center min-w-[120px]
+                                                ${order.status === 'معلق' ? 'bg-yellow-500/5 text-yellow-500 border-yellow-500/20 hover:border-yellow-500/50' : ''}
+                                                ${order.status === 'تم تأكيده' ? 'bg-blue-500/5 text-blue-500 border-blue-500/20 hover:border-blue-500/50' : ''}
+                                                ${order.status === 'تم توصيله' ? 'bg-green-500/5 text-green-500 border-green-500/20 hover:border-green-500/50' : ''}
+                                                ${order.status === 'تم ارجاعه' ? 'bg-purple-500/5 text-purple-500 border-purple-500/20 hover:border-purple-500/50' : ''}
+                                                ${order.status === 'لم يتم' ? 'bg-red-500/5 text-red-500 border-red-500/20 hover:border-red-500/50' : ''}
                                             `}
                                             >
-                                                <option value="معلق" className="bg-white dark:bg-[#1A1C1D] text-yellow-600 dark:text-yellow-500">معلق</option>
-                                                <option value="تم تأكيده" className="bg-white dark:bg-[#1A1C1D] text-blue-600 dark:text-blue-500">تم تأكيده</option>
-                                                <option value="تم توصيله" className="bg-white dark:bg-[#1A1C1D] text-green-600 dark:text-green-500">تم توصيله</option>
-                                                <option value="تم ارجاعه" className="bg-white dark:bg-[#1A1C1D] text-purple-600 dark:text-purple-500">تم ارجاعه</option>
-                                                <option value="لم يتم" className="bg-white dark:bg-[#1A1C1D] text-red-600 dark:text-red-500">لم يتم</option>
+                                                <option value="معلق">Pending (معلق)</option>
+                                                <option value="تم تأكيده">Confirmed (مؤكد)</option>
+                                                <option value="تم توصيله">Delivered (توصيل)</option>
+                                                <option value="تم ارجاعه">Returned (مرتجع)</option>
+                                                <option value="لم يتم">Failed (فشل)</option>
                                             </select>
                                             <button
                                                 onClick={() => onDeleteOrder(order.id)}
-                                                className="flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-red-500/70 hover:text-red-500 bg-red-500/5 hover:bg-red-500/10 border border-red-500/20 hover:border-500/40 px-3 py-1 rounded transition-all"
-                                                title="Delete Order"
+                                                className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] text-red-500/40 hover:text-red-500 transition-all group/btn"
                                             >
-                                                <Trash2 size={12} />
-                                                <span>حذف</span>
+                                                <Trash2 size={12} className="opacity-40 group-hover/btn:opacity-100" />
+                                                <span>حذف السجل</span>
                                             </button>
                                         </div>
                                     </td>
@@ -160,10 +162,90 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                         </tbody>
                     </table>
                 )}
-                {!loading && filteredOrders.length === 0 && (
-                    <div className="p-12 text-center text-text-secondary">No orders found.</div>
+            </div>
+
+            {/* Mobile Card View - Visible only on small screens */}
+            <div className="flex-1 overflow-auto md:hidden p-4 space-y-4">
+                {loading ? (
+                    <div className="p-12 text-center text-text-secondary animate-pulse tracking-widest uppercase text-xs">Curating orders...</div>
+                ) : (
+                    filteredOrders.map(order => (
+                        <div key={order.id} className="bg-background-dark/40 rounded-2xl border border-border-color/30 p-5 space-y-4 shadow-xl">
+                            {/* Header: ID and Date */}
+                            <div className="flex justify-between items-start border-b border-border-color/10 pb-3">
+                                <div>
+                                    <div className="font-black text-primary text-xs tracking-[0.2em] uppercase mb-1">
+                                        #{order.id.split('-')[0]}
+                                    </div>
+                                    <div className="text-[10px] text-text-secondary font-bold tracking-wider uppercase opacity-60">
+                                        {new Date(order.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })} • {new Date(order.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <div className="font-black text-highlight text-lg leading-tight">{order.total.toLocaleString()}</div>
+                                    <div className="text-[9px] text-text-secondary font-black tracking-widest uppercase opacity-40">EGP TOTAL</div>
+                                </div>
+                            </div>
+
+                            {/* Customer Info */}
+                            <div className="space-y-1">
+                                <div className="text-sm font-black text-text-primary tracking-wide">{order.customer_name}</div>
+                                <div className="text-xs text-primary font-bold tracking-widest">{order.phone}</div>
+                                <div className="text-[11px] text-text-secondary leading-relaxed opacity-80">{order.address}</div>
+                            </div>
+
+                            {/* Items Preview */}
+                            <div className="bg-black/20 rounded-xl p-3 space-y-2 border border-border-color/5">
+                                {order.cart?.map((item, idx) => (
+                                    <div key={idx} className="flex justify-between text-[11px]">
+                                        <span className="font-bold text-text-secondary">
+                                            {item.quantity}x <span className="text-text-primary">{item.name || item.product?.name}</span>
+                                        </span>
+                                        <span className="text-highlight font-black">{item.sizePrice || item.price || item.product?.price}</span>
+                                    </div>
+                                ))}
+                                {order.notes && (
+                                    <div className="mt-2 text-[10px] text-primary/70 italic border-l-2 border-primary/30 pl-2 py-1">
+                                        {order.notes}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Actions: Status and Delete */}
+                            <div className="flex gap-2 pt-2">
+                                <select
+                                    value={order.status}
+                                    onChange={(e) => onUpdateStatus(order.id, e.target.value)}
+                                    className={`
+                                    flex-1 text-[10px] font-black tracking-[0.15em] uppercase px-4 py-3 rounded-xl border-2 outline-none cursor-pointer appearance-none transition-all text-center
+                                    ${order.status === 'معلق' ? 'bg-yellow-500/5 text-yellow-500 border-yellow-500/20' : ''}
+                                    ${order.status === 'تم تأكيده' ? 'bg-blue-500/5 text-blue-500 border-blue-500/20' : ''}
+                                    ${order.status === 'تم توصيله' ? 'bg-green-500/5 text-green-500 border-green-500/20' : ''}
+                                    ${order.status === 'تم ارجاعه' ? 'bg-purple-500/5 text-purple-500 border-purple-500/20' : ''}
+                                    ${order.status === 'لم يتم' ? 'bg-red-500/5 text-red-500 border-red-500/20' : ''}
+                                `}
+                                >
+                                    <option value="معلق">معلق</option>
+                                    <option value="تم تأكيده">مؤكد</option>
+                                    <option value="تم توصيله">تم التوصيل</option>
+                                    <option value="تم ارجاعه">مرتجع</option>
+                                    <option value="لم يتم">فشل</option>
+                                </select>
+                                <button
+                                    onClick={() => onDeleteOrder(order.id)}
+                                    className="p-3 bg-red-500/10 text-red-500 rounded-xl border border-red-500/20 active:scale-95 transition-transform"
+                                >
+                                    <Trash2 size={18} />
+                                </button>
+                            </div>
+                        </div>
+                    ))
                 )}
             </div>
+
+            {!loading && filteredOrders.length === 0 && (
+                <div className="p-12 text-center text-text-secondary tracking-widest uppercase text-xs opacity-50">No orders found.</div>
+            )}
         </div>
     );
 };

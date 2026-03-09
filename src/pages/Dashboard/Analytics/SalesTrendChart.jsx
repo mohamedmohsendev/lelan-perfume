@@ -1,3 +1,4 @@
-// Deprecated
-export const SalesTrendChart = () => null;
+
+export * from './SalesTrendChart.tsx';
+import SalesTrendChart from './SalesTrendChart.tsx';
 export default SalesTrendChart;

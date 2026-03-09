@@ -1,3 +1,4 @@
-// Deprecated
-export const TopProductsChart = () => null;
+
+export * from './TopProductsChart.tsx';
+import TopProductsChart from './TopProductsChart.tsx';
 export default TopProductsChart;
