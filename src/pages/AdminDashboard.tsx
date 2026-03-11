@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect, useMemo, Suspense } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import { Package, ShoppingCart, TrendingUp, BarChart3, Settings, Calendar } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 
@@ -18,19 +17,19 @@ import { useSiteSettings } from '../context/SiteSettingsContext';
 import { useOrders } from '../hooks/useOrders';
 
 // Types
-import type { Tab, FormShape } from './Dashboard/types';
+import type { Tab, FormShape, Order } from './Dashboard/types';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
 const DEFAULT_FORM: FormShape = {
-    name: '', category: 'Unisex', price: '', price30ml: '', price50ml: '', price100ml: '', oldPrice: '', description: '',
-    notesTop: '', notesHeart: '', notesBase: '',
+    name: '', category: 'Unisex', price: '', price30ml: '', price50ml: '', price100ml: '',
+    oldPrice: '', oldPrice30ml: '', oldPrice50ml: '', oldPrice100ml: '',
+    description: '', notesTop: '', notesHeart: '', notesBase: '',
     imageFiles: [], imagePreviews: [], existingImages: [], editingId: null,
 };
 
 export const AdminDashboard = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    const queryClient = useQueryClient();
     const tabParam = searchParams.get('tab') as Tab;
 
     const { products, loading: productsLoading, refreshProducts, deleteProduct } = useProducts();
@@ -65,28 +64,28 @@ export const AdminDashboard = () => {
     // ── Memoized Calculations ─────────────────────────────────────────────
     const statsData = useMemo(() => {
         const confirmedStatuses = ['تم تأكيده', 'تم توصيله', 'Processing', 'Delivered'];
-        const activeOrders = orders.filter(o => confirmedStatuses.includes(o.status));
-        const totalRevenue = activeOrders.reduce((acc, order) => acc + (order.total || 0), 0);
+        const activeOrders = orders.filter((o: Order) => confirmedStatuses.includes(o.status));
+        const totalRevenue = activeOrders.reduce((acc: number, order: Order) => acc + (order.total || 0), 0);
         const averageOrderValue = activeOrders.length > 0 ? totalRevenue / activeOrders.length : 0;
 
         // Today's stats
         const today = new Date().toDateString();
-        const todayOrders = orders.filter(o => new Date(o.created_at).toDateString() === today);
-        const todayRevenue = todayOrders.filter(o => o.status !== 'لم يتم').reduce((acc, o) => acc + (o.total || 0), 0);
+        const todayOrders = orders.filter((o: Order) => new Date(o.created_at).toDateString() === today);
+        const todayRevenue = todayOrders.filter((o: Order) => o.status !== 'لم يتم').reduce((acc: number, o: Order) => acc + (o.total || 0), 0);
 
         // Status counts
-        const pendingCount = orders.filter(o => !o.status || o.status === 'معلق' || o.status === 'Pending').length;
-        const confirmedCount = orders.filter(o => o.status === 'تم تأكيده' || o.status === 'Processing').length;
-        const deliveredCount = orders.filter(o => o.status === 'تم توصيله' || o.status === 'Delivered').length;
-        const returnedCount = orders.filter(o => o.status === 'تم ارجاعه' || o.status === 'Shipped').length;
-        const failedCount = orders.filter(o => o.status === 'لم يتم' || o.status === 'Cancelled').length;
+        const pendingCount = orders.filter((o: Order) => !o.status || o.status === 'معلق' || o.status === 'Pending').length;
+        const confirmedCount = orders.filter((o: Order) => o.status === 'تم تأكيده' || o.status === 'Processing').length;
+        const deliveredCount = orders.filter((o: Order) => o.status === 'تم توصيله' || o.status === 'Delivered').length;
+        const returnedCount = orders.filter((o: Order) => o.status === 'تم ارجاعه' || o.status === 'Shipped').length;
+        const failedCount = orders.filter((o: Order) => o.status === 'لم يتم' || o.status === 'Cancelled').length;
 
         // Best seller logic
         let topScent = 'None';
         const productCounts: Record<string, number> = {};
         if (activeOrders.length > 0) {
-            activeOrders.forEach(o => {
-                o.cart?.forEach(item => {
+            activeOrders.forEach((o: Order) => {
+                o.cart?.forEach((item: any) => {
                     const name = item.name || item.product?.name || 'Unknown';
                     productCounts[name] = (productCounts[name] || 0) + (item.quantity || 1);
                 });
@@ -96,18 +95,18 @@ export const AdminDashboard = () => {
         }
 
         const stats = [
-            { label: 'Total Revenue', value: `${totalRevenue.toLocaleString()} EGP`, icon: <TrendingUp className="text-primary" size={24} />, color: 'text-primary' },
-            { label: 'Total Orders', value: orders.length.toString(), icon: <ShoppingCart className="text-primary" size={24} />, color: 'text-primary' },
-            { label: 'Top Selling Scent', value: topScent, icon: <Package className="text-primary" size={24} />, color: 'text-primary' },
-            { label: 'Avg Order Value', value: `${Math.round(averageOrderValue).toLocaleString()} EGP`, icon: <Calendar className="text-primary" size={24} />, color: 'text-primary' },
+            { label: t('admin.stats.totalRevenue'), value: `${totalRevenue.toLocaleString()} EGP`, icon: <TrendingUp className="text-primary" size={24} />, color: 'text-primary' },
+            { label: t('admin.stats.totalOrders'), value: orders.length.toString(), icon: <ShoppingCart className="text-primary" size={24} />, color: 'text-primary' },
+            { label: t('admin.stats.topSelling'), value: topScent, icon: <Package className="text-primary" size={24} />, color: 'text-primary' },
+            { label: t('admin.stats.avgOrder'), value: `${Math.round(averageOrderValue).toLocaleString()} EGP`, icon: <Calendar className="text-primary" size={24} />, color: 'text-primary' },
         ];
 
         const statusCards = [
-            { label: 'معلق', count: pendingCount, color: 'text-yellow-500', bg: 'bg-yellow-500/10 border-yellow-500/20' },
-            { label: 'تم تأكيده', count: confirmedCount, color: 'text-blue-500', bg: 'bg-blue-500/10 border-blue-500/20' },
-            { label: 'تم توصيله', count: deliveredCount, color: 'text-green-500', bg: 'bg-green-500/10 border-green-500/20' },
-            { label: 'تم ارجاعه', count: returnedCount, color: 'text-purple-500', bg: 'bg-purple-500/10 border-purple-500/20' },
-            { label: 'لم يتم', count: failedCount, color: 'text-red-500', bg: 'bg-red-500/10 border-red-500/20' },
+            { label: t('admin.stats.pending'), count: pendingCount, color: 'text-yellow-500', bg: 'bg-yellow-500/10 border-yellow-500/20' },
+            { label: t('admin.stats.confirmed'), count: confirmedCount, color: 'text-blue-500', bg: 'bg-blue-500/10 border-blue-500/20' },
+            { label: t('admin.stats.delivered'), count: deliveredCount, color: 'text-green-500', bg: 'bg-green-500/10 border-green-500/20' },
+            { label: t('admin.stats.returned'), count: returnedCount, color: 'text-purple-500', bg: 'bg-purple-500/10 border-purple-500/20' },
+            { label: t('admin.stats.failed'), count: failedCount, color: 'text-red-500', bg: 'bg-red-500/10 border-red-500/20' },
         ];
 
         return {
@@ -130,6 +129,9 @@ export const AdminDashboard = () => {
                 price50ml: product.price50ml || '',
                 price100ml: product.price100ml || '',
                 oldPrice: product.oldPrice || '',
+                oldPrice30ml: product.oldPrice30ml || '',
+                oldPrice50ml: product.oldPrice50ml || '',
+                oldPrice100ml: product.oldPrice100ml || '',
                 description: product.description || '',
                 notesTop: product.notesTop || '',
                 notesHeart: product.notesHeart || '',
@@ -164,11 +166,17 @@ export const AdminDashboard = () => {
     };
 
     const removeNewImage = (index: number) => {
-        setForm((prev: FormShape) => ({
-            ...prev,
-            imageFiles: prev.imageFiles.filter((_, i: number) => i !== index),
-            imagePreviews: prev.imagePreviews.filter((_, i: number) => i !== index),
-        }));
+        setForm((prev: FormShape) => {
+            // F3 FIX: Revoke blob URL to free memory
+            if (prev.imagePreviews[index]) {
+                URL.revokeObjectURL(prev.imagePreviews[index]);
+            }
+            return {
+                ...prev,
+                imageFiles: prev.imageFiles.filter((_: File, i: number) => i !== index),
+                imagePreviews: prev.imagePreviews.filter((_: string, i: number) => i !== index),
+            };
+        });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -185,6 +193,9 @@ export const AdminDashboard = () => {
             fd.append('price50ml', form.price50ml);
             fd.append('price100ml', form.price100ml);
             fd.append('oldPrice', form.oldPrice);
+            fd.append('oldPrice30ml', form.oldPrice30ml);
+            fd.append('oldPrice50ml', form.oldPrice50ml);
+            fd.append('oldPrice100ml', form.oldPrice100ml);
             fd.append('description', form.description);
             fd.append('notesTop', form.notesTop);
             fd.append('notesHeart', form.notesHeart);
@@ -205,8 +216,6 @@ export const AdminDashboard = () => {
             }
 
             await refreshProducts();
-            // Invalidate React Query cache to reflect changes immediately across the site
-            queryClient.invalidateQueries({ queryKey: ['products'] });
 
             setIsModalOpen(false);
             setForm(DEFAULT_FORM);
@@ -284,18 +293,18 @@ export const AdminDashboard = () => {
     return (
         <div className="max-w-7xl mx-auto relative">
             <div className="mb-10">
-                <h1 className="text-3xl font-bold text-text-primary tracking-widest uppercase mb-2">Dashboard</h1>
-                <p className="text-text-secondary">Welcome back, Admin.</p>
+                <h1 className="text-3xl font-bold text-text-primary tracking-widest uppercase mb-2">{t('admin.dashboard')}</h1>
+                <p className="text-text-secondary">{t('admin.welcome')}</p>
             </div>
 
             {/* Tabs Navigation - Scrollable on mobile */}
             <div className="flex overflow-x-auto no-scrollbar gap-2 mb-8 pb-1 -mx-4 px-4 md:mx-0 md:px-0">
                 {[
-                    { id: 'dashboard', label: 'Dashboard', icon: <TrendingUp size={16} /> },
-                    { id: 'orders', label: 'Orders', icon: <ShoppingCart size={16} /> },
-                    { id: 'products', label: 'Products', icon: <Package size={16} /> },
-                    { id: 'analytics', label: 'Analytics', icon: <BarChart3 size={16} /> },
-                    { id: 'settings', label: 'Settings', icon: <Settings size={16} /> },
+                    { id: 'dashboard', label: t('admin.tab.dashboard'), icon: <TrendingUp size={16} /> },
+                    { id: 'orders', label: t('admin.tab.orders'), icon: <ShoppingCart size={16} /> },
+                    { id: 'products', label: t('admin.tab.products'), icon: <Package size={16} /> },
+                    { id: 'analytics', label: t('admin.tab.analytics'), icon: <BarChart3 size={16} /> },
+                    { id: 'settings', label: t('admin.tab.settings'), icon: <Settings size={16} /> },
                 ].map(tab => (
                     <button
                         key={tab.id}

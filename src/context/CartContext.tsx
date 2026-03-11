@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { Product } from '../components/ProductCard';
+import type { Product } from '../types';
 
 export interface CartItem {
     id: string; // ${product.id}-${size || 'default'}

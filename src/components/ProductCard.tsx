@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Eye, Heart, ShoppingBag } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useWishlist } from '../context/WishlistContext';
@@ -8,7 +9,7 @@ import type { Product } from '../types';
 
 export type { Product };
 
-export const ProductCard: React.FC<{ product: Product, priority?: boolean }> = React.memo(({ product, priority = false }) => {
+export const ProductCard: React.FC<{ product: Product, priority?: boolean, index?: number }> = React.memo(({ product, priority = false, index = 0 }) => {
     const { addToCart } = useCart();
     const { t } = useLanguage();
     const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
@@ -31,24 +32,38 @@ export const ProductCard: React.FC<{ product: Product, priority?: boolean }> = R
     };
 
     return (
-        <div className="group flex flex-col overflow-hidden rounded-xl border border-border-color hover:border-border-color/80 transition-all duration-300 bg-background-card">
+        <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.6, delay: index * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className="group flex flex-col overflow-hidden rounded-xl border border-border-color hover:border-border-color/80 transition-all duration-300 bg-background-card"
+        >
             {/* Top: Image Area */}
             <div className="relative aspect-[4/5] bg-gray-100 dark:bg-[#1a1c1d] flex items-center justify-center p-6 overflow-hidden">
                 <Link to={`/product/${product.id}`} className="w-full h-full flex items-center justify-center block">
-                    <img
+                    <motion.img
                         src={product.imageUrl}
                         alt={product.name || "LALEN Perfume"}
                         loading={priority ? "eager" : "lazy"}
                         fetchPriority={priority ? "high" : "auto"}
                         width={400}
                         height={500}
-                        className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal group-hover:scale-105 transition-transform duration-700 ease-out"
+                        className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal"
+                        whileHover={{ scale: 1.08 }}
+                        transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
                     />
                 </Link>
 
                 {/* Sale Badge */}
                 {product.oldPrice && (
-                    <span className="absolute top-4 left-4 bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded shadow-sm z-10" dir="ltr">
+                    <motion.span
+                        initial={{ scale: 0, rotate: -12 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        transition={{ delay: 0.3, type: 'spring', stiffness: 200 }}
+                        className="absolute top-4 left-4 bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded shadow-sm z-10"
+                        dir="ltr"
+                    >
                         {(() => {
                             const oldP = parseInt(product.oldPrice.replace(/\D/g, ''));
                             const newP = parseInt((displayPrice || '').replace(/\D/g, ''));
@@ -58,7 +73,7 @@ export const ProductCard: React.FC<{ product: Product, priority?: boolean }> = R
                             }
                             return 'Sale';
                         })()}
-                    </span>
+                    </motion.span>
                 )}
 
                 {/* Hover Icons (Center) */}
@@ -117,6 +132,6 @@ export const ProductCard: React.FC<{ product: Product, priority?: boolean }> = R
                     )}
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 });

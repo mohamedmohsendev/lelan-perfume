@@ -20,6 +20,9 @@ export interface FormShape {
     price50ml: string;
     price100ml: string;
     oldPrice: string;
+    oldPrice30ml: string;
+    oldPrice50ml: string;
+    oldPrice100ml: string;
     description: string;
     notesTop: string;
     notesHeart: string;

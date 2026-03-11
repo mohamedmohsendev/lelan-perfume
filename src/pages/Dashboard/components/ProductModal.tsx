@@ -35,7 +35,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="bg-background-dark w-full max-w-lg rounded-2xl border border-border-color shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+            <div className="bg-background-dark w-full max-w-2xl rounded-2xl border border-border-color shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
                 <div className="p-6 border-b border-border-color flex justify-between items-center flex-shrink-0">
                     <h2 className="text-xl font-bold tracking-widest text-primary uppercase">
                         {form.editingId ? t('admin.edit') : t('admin.add')}
@@ -44,82 +44,105 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                         <X size={20} />
                     </button>
                 </div>
-                <form onSubmit={onSubmit} className="p-6 space-y-4 overflow-y-auto flex-1">
+                <form onSubmit={onSubmit} className="p-6 space-y-5 overflow-y-auto flex-1">
                     {/* Name */}
                     <div>
-                        <label className="block text-xs uppercase tracking-widest text-text-secondary font-semibold mb-2">Product Name</label>
+                        <label className="block text-xs uppercase tracking-widest text-text-secondary font-semibold mb-2">{t('admin.productName')}</label>
                         <input required value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} type="text" className="w-full bg-background-card border border-border-color rounded p-3 text-text-primary focus:outline-none focus:border-primary transition-colors" />
                     </div>
 
-                    {/* Category + Prices */}
-                    <div className="mb-4">
-                        <label className="block text-xs uppercase tracking-widest text-text-secondary font-semibold mb-2">Category</label>
-                        <select value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} className="w-full bg-background-card border border-border-color rounded p-3 text-text-primary focus:outline-none focus:border-primary transition-colors appearance-none mb-4">
-                            <option value="Men">Men</option>
-                            <option value="Women">Women</option>
-                            <option value="Unisex">Unisex</option>
+                    {/* Category */}
+                    <div>
+                        <label className="block text-xs uppercase tracking-widest text-text-secondary font-semibold mb-2">{t('admin.category')}</label>
+                        <select value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} className="w-full bg-background-card border border-border-color rounded p-3 text-text-primary focus:outline-none focus:border-primary transition-colors appearance-none">
+                            <option value="Men">{t('nav.men')}</option>
+                            <option value="Women">{t('nav.women')}</option>
+                            <option value="Unisex">{t('nav.unisex')}</option>
                         </select>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 mb-4">
+                    {/* Base Price + Old Price */}
+                    <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-xs uppercase tracking-widest text-text-secondary font-semibold mb-2">Base Price</label>
-                            <input required value={form.price} onChange={e => setForm(p => ({ ...p, price: e.target.value }))} type="text" placeholder="e.g. 500 EGP" className="w-full bg-background-card border border-border-color rounded p-3 text-text-primary focus:outline-none focus:border-primary transition-colors" />
+                            <label className="block text-xs uppercase tracking-widest text-text-secondary font-semibold mb-2">{t('admin.basePrice')}</label>
+                            <input required value={form.price} onChange={e => setForm(p => ({ ...p, price: e.target.value }))} type="text" placeholder="e.g. 500" className="w-full bg-background-card border border-border-color rounded p-3 text-text-primary focus:outline-none focus:border-primary transition-colors" />
                         </div>
                         <div>
-                            <label className="block text-xs uppercase tracking-widest text-text-secondary font-semibold mb-2">Old Price (cross-out)</label>
-                            <input value={form.oldPrice} onChange={e => setForm(p => ({ ...p, oldPrice: e.target.value }))} type="text" placeholder="e.g. 800 EGP" className="w-full bg-background-card border border-border-color rounded p-3 text-text-primary focus:outline-none focus:border-primary transition-colors" />
+                            <label className="block text-xs uppercase tracking-widest text-text-secondary font-semibold mb-2">{t('admin.oldPrice')}</label>
+                            <input value={form.oldPrice} onChange={e => setForm(p => ({ ...p, oldPrice: e.target.value }))} type="text" placeholder="e.g. 800" className="w-full bg-background-card border border-border-color rounded p-3 text-text-primary focus:outline-none focus:border-primary transition-colors" />
                         </div>
                     </div>
 
-                    {/* Size Variant Prices */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 border border-border-color p-4 rounded bg-background-dark/30">
-                        <div>
-                            <label className="block text-xs uppercase tracking-widest text-text-secondary font-semibold mb-2 flex justify-between">
-                                <span>30ml Price</span> <span className="text-primary/70 italic lowercase">optional</span>
-                            </label>
-                            <input value={form.price30ml} onChange={e => setForm(p => ({ ...p, price30ml: e.target.value }))} type="text" placeholder="0 EGP" className="w-full bg-background-card border border-border-color rounded p-3 text-text-primary text-sm focus:outline-none focus:border-primary transition-colors" />
+                    {/* Size Variant Prices — each with old price */}
+                    <div className="border border-border-color rounded-xl p-4 bg-background-dark/30 space-y-4">
+                        <h4 className="text-xs uppercase tracking-widest text-primary font-bold flex items-center justify-between">
+                            <span>{t('admin.sizePrices')}</span>
+                            <span className="text-primary/50 italic lowercase font-normal">{t('admin.optional')}</span>
+                        </h4>
+
+                        {/* 30ml */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-[10px] uppercase tracking-widest text-text-secondary font-semibold mb-1.5">{t('admin.price30ml')}</label>
+                                <input value={form.price30ml} onChange={e => setForm(p => ({ ...p, price30ml: e.target.value }))} type="text" placeholder="0" className="w-full bg-background-card border border-border-color rounded p-2.5 text-text-primary text-sm focus:outline-none focus:border-primary transition-colors" />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] uppercase tracking-widest text-text-secondary font-semibold mb-1.5">{t('admin.oldPrice30ml')}</label>
+                                <input value={form.oldPrice30ml} onChange={e => setForm(p => ({ ...p, oldPrice30ml: e.target.value }))} type="text" placeholder="0" className="w-full bg-background-card border border-border-color rounded p-2.5 text-text-primary text-sm focus:outline-none focus:border-primary transition-colors" />
+                            </div>
                         </div>
-                        <div>
-                            <label className="block text-xs uppercase tracking-widest text-text-secondary font-semibold mb-2 flex justify-between">
-                                <span>50ml Price</span> <span className="text-primary/70 italic lowercase">optional</span>
-                            </label>
-                            <input value={form.price50ml} onChange={e => setForm(p => ({ ...p, price50ml: e.target.value }))} type="text" placeholder="0 EGP" className="w-full bg-background-card border border-border-color rounded p-3 text-text-primary text-sm focus:outline-none focus:border-primary transition-colors" />
+
+                        {/* 50ml */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-[10px] uppercase tracking-widest text-text-secondary font-semibold mb-1.5">{t('admin.price50ml')}</label>
+                                <input value={form.price50ml} onChange={e => setForm(p => ({ ...p, price50ml: e.target.value }))} type="text" placeholder="0" className="w-full bg-background-card border border-border-color rounded p-2.5 text-text-primary text-sm focus:outline-none focus:border-primary transition-colors" />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] uppercase tracking-widest text-text-secondary font-semibold mb-1.5">{t('admin.oldPrice50ml')}</label>
+                                <input value={form.oldPrice50ml} onChange={e => setForm(p => ({ ...p, oldPrice50ml: e.target.value }))} type="text" placeholder="0" className="w-full bg-background-card border border-border-color rounded p-2.5 text-text-primary text-sm focus:outline-none focus:border-primary transition-colors" />
+                            </div>
                         </div>
-                        <div>
-                            <label className="block text-xs uppercase tracking-widest text-text-secondary font-semibold mb-2 flex justify-between">
-                                <span>100ml Price</span> <span className="text-primary/70 italic lowercase">optional</span>
-                            </label>
-                            <input value={form.price100ml} onChange={e => setForm(p => ({ ...p, price100ml: e.target.value }))} type="text" placeholder="0 EGP" className="w-full bg-background-card border border-border-color rounded p-3 text-text-primary text-sm focus:outline-none focus:border-primary transition-colors" />
+
+                        {/* 100ml */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-[10px] uppercase tracking-widest text-text-secondary font-semibold mb-1.5">{t('admin.price100ml')}</label>
+                                <input value={form.price100ml} onChange={e => setForm(p => ({ ...p, price100ml: e.target.value }))} type="text" placeholder="0" className="w-full bg-background-card border border-border-color rounded p-2.5 text-text-primary text-sm focus:outline-none focus:border-primary transition-colors" />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] uppercase tracking-widest text-text-secondary font-semibold mb-1.5">{t('admin.oldPrice100ml')}</label>
+                                <input value={form.oldPrice100ml} onChange={e => setForm(p => ({ ...p, oldPrice100ml: e.target.value }))} type="text" placeholder="0" className="w-full bg-background-card border border-border-color rounded p-2.5 text-text-primary text-sm focus:outline-none focus:border-primary transition-colors" />
+                            </div>
                         </div>
                     </div>
 
                     {/* Description */}
                     <div>
-                        <label className="block text-xs uppercase tracking-widest text-text-secondary font-semibold mb-2">Description</label>
-                        <textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} rows={3} className="w-full bg-background-card border border-border-color rounded p-3 text-text-primary focus:outline-none focus:border-primary transition-colors resize-none" placeholder="A masterful blend of the finest ingredients..." />
+                        <label className="block text-xs uppercase tracking-widest text-text-secondary font-semibold mb-2">{t('admin.description')}</label>
+                        <textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} rows={3} className="w-full bg-background-card border border-border-color rounded p-3 text-text-primary focus:outline-none focus:border-primary transition-colors resize-none" placeholder={t('admin.descriptionPlaceholder')} />
                     </div>
 
                     {/* Scent Notes */}
                     <div className="bg-background-card rounded-lg border border-border-color p-4 space-y-3">
-                        <h4 className="text-xs uppercase tracking-widest text-primary font-bold">Scent Notes</h4>
+                        <h4 className="text-xs uppercase tracking-widest text-primary font-bold">{t('admin.scentNotes')}</h4>
                         <div>
-                            <label className="block text-xs text-text-secondary mb-1">Top Notes</label>
+                            <label className="block text-xs text-text-secondary mb-1">{t('product.topNotes')}</label>
                             <input value={form.notesTop} onChange={e => setForm(p => ({ ...p, notesTop: e.target.value }))} type="text" placeholder="Bergamot, Pink Pepper, Lemon" className="w-full bg-background-dark border border-border-color rounded p-2.5 text-text-primary text-sm focus:outline-none focus:border-primary transition-colors" />
                         </div>
                         <div>
-                            <label className="block text-xs text-text-secondary mb-1">Heart Notes</label>
+                            <label className="block text-xs text-text-secondary mb-1">{t('product.heartNotes')}</label>
                             <input value={form.notesHeart} onChange={e => setForm(p => ({ ...p, notesHeart: e.target.value }))} type="text" placeholder="Rose, Jasmine, Cardamom" className="w-full bg-background-dark border border-border-color rounded p-2.5 text-text-primary text-sm focus:outline-none focus:border-primary transition-colors" />
                         </div>
                         <div>
-                            <label className="block text-xs text-text-secondary mb-1">Base Notes</label>
+                            <label className="block text-xs text-text-secondary mb-1">{t('product.baseNotes')}</label>
                             <input value={form.notesBase} onChange={e => setForm(p => ({ ...p, notesBase: e.target.value }))} type="text" placeholder="Oud, Vanilla, Amber" className="w-full bg-background-dark border border-border-color rounded p-2.5 text-text-primary text-sm focus:outline-none focus:border-primary transition-colors" />
                         </div>
                     </div>
 
                     {/* Images */}
                     <div>
-                        <label className="block text-xs uppercase tracking-widest text-text-secondary font-semibold mb-2">Product Images (up to 5)</label>
+                        <label className="block text-xs uppercase tracking-widest text-text-secondary font-semibold mb-2">{t('admin.productImages')}</label>
 
                         {form.existingImages.length > 0 && (
                             <div className="flex flex-wrap gap-2 mb-3">
@@ -155,7 +178,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                             className="w-full border-2 border-dashed border-border-color hover:border-primary rounded-lg p-4 flex flex-col items-center gap-2 transition-colors group"
                         >
                             <ImageIcon size={28} className="text-text-secondary group-hover:text-primary transition-colors" />
-                            <span className="text-xs text-text-secondary group-hover:text-primary transition-colors tracking-wider">Click to add images</span>
+                            <span className="text-xs text-text-secondary group-hover:text-primary transition-colors tracking-wider">{t('admin.addImages')}</span>
                         </button>
                     </div>
 
@@ -171,7 +194,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                             {submitting ? (
                                 <>
                                     <span className="animate-spin inline-block w-4 h-4 border-2 border-black border-t-transparent rounded-full" />
-                                    Uploading...
+                                    {t('admin.uploading')}
                                 </>
                             ) : (
                                 form.editingId ? t('admin.save') : t('admin.add')

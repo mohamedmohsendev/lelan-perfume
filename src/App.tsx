@@ -1,6 +1,7 @@
 
 import React, { Suspense } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { ProductProvider } from './context/ProductContext';
@@ -10,6 +11,8 @@ import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
 import { MainLayout } from './components/layout/MainLayout';
 import { AdminLayout } from './components/layout/AdminLayout';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { ScrollToTop } from './components/ScrollToTop';
 
 // Lazy load pages for performance
 const Home = React.lazy(() => import('./pages/Home').then(module => ({ default: module.Home })));
@@ -20,6 +23,7 @@ const ProductDetails = React.lazy(() => import('./pages/ProductDetails').then(mo
 const Checkout = React.lazy(() => import('./pages/Checkout').then(module => ({ default: module.Checkout })));
 const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard').then(module => ({ default: module.AdminDashboard })));
 const Wishlist = React.lazy(() => import('./pages/Wishlist').then(module => ({ default: module.Wishlist })));
+const NotFound = React.lazy(() => import('./pages/NotFound').then(module => ({ default: module.NotFound })));
 
 const SuspenseFallback = () => (
   <div className="min-h-screen flex items-center justify-center bg-background-dark">
@@ -39,42 +43,61 @@ const queryClient = new QueryClient({
   },
 });
 
+// AnimatePresence wrapper that uses useLocation (must be inside BrowserRouter)
+const AnimatedRoutes = () => {
+  const location = useLocation();
+  
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<MainLayout />}>
+          <Route index element={<Home />} />
+          <Route path="men" element={<Men />} />
+          <Route path="women" element={<Women />} />
+          <Route path="unisex" element={<Unisex />} />
+          <Route path="wishlist" element={<Wishlist />} />
+          <Route path="product/:id" element={<ProductDetails />} />
+          <Route path="checkout" element={<Checkout />} />
+        </Route>
+
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+        </Route>
+
+        {/* U5 FIX: 404 catch-all route */}
+        <Route path="*" element={<MainLayout />}>
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
+    </AnimatePresence>
+  );
+};
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <LanguageProvider>
-          <ProductProvider>
-            <AuthProvider>
-              <SiteSettingsProvider>
-                <CartProvider>
-                  <WishlistProvider>
-                    <BrowserRouter>
-                      <Suspense fallback={<SuspenseFallback />}>
-                        <Routes>
-                          <Route path="/" element={<MainLayout />}>
-                            <Route index element={<Home />} />
-                            <Route path="men" element={<Men />} />
-                            <Route path="women" element={<Women />} />
-                            <Route path="unisex" element={<Unisex />} />
-                            <Route path="wishlist" element={<Wishlist />} />
-                            <Route path="product/:id" element={<ProductDetails />} />
-                            <Route path="checkout" element={<Checkout />} />
-                          </Route>
-
-                          <Route path="/admin" element={<AdminLayout />}>
-                            <Route index element={<AdminDashboard />} />
-                          </Route>
-                        </Routes>
-                      </Suspense>
-                    </BrowserRouter>
-                  </WishlistProvider>
-                </CartProvider>
-              </SiteSettingsProvider>
-            </AuthProvider>
-          </ProductProvider>
-        </LanguageProvider>
-      </ThemeProvider>
+      <ErrorBoundary>
+        <ThemeProvider>
+          <LanguageProvider>
+            <ProductProvider>
+              <AuthProvider>
+                <SiteSettingsProvider>
+                  <CartProvider>
+                    <WishlistProvider>
+                      <BrowserRouter>
+                        <ScrollToTop />
+                        <Suspense fallback={<SuspenseFallback />}>
+                          <AnimatedRoutes />
+                        </Suspense>
+                      </BrowserRouter>
+                    </WishlistProvider>
+                  </CartProvider>
+                </SiteSettingsProvider>
+              </AuthProvider>
+            </ProductProvider>
+          </LanguageProvider>
+        </ThemeProvider>
+      </ErrorBoundary>
     </QueryClientProvider>
   );
 }

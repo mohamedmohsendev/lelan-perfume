@@ -20,13 +20,14 @@ export default defineConfig({
       'react-router-dom',
       'recharts',
       'react-date-range',
-      'date-fns'
+      'date-fns',
+      'framer-motion'
     ],
   },
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:3001',
+        target: 'http://localhost:3002',
         changeOrigin: true,
       },
     },
@@ -42,6 +43,7 @@ export default defineConfig({
         manualChunks: {
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
           'vendor-charts': ['recharts'],
+          'vendor-motion': ['framer-motion'],
         },
       },
     },

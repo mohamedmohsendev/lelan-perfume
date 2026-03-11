@@ -24,6 +24,16 @@ export const MainLayout: React.FC = () => {
         setMobileMenuOpen(false);
     }, [location.pathname]);
 
+    // P4 FIX: Lock body scroll when mobile menu is open
+    React.useEffect(() => {
+        if (mobileMenuOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => { document.body.style.overflow = ''; };
+    }, [mobileMenuOpen]);
+
     const showBanner = settings.banner_active === 'true' && settings.banner_text && !hideBanner;
 
     return (

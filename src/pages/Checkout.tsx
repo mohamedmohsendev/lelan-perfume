@@ -3,7 +3,7 @@ import { ShoppingBag, ArrowRight, Banknote, Smartphone, Plus, Minus } from 'luci
 import { useLanguage } from '../context/LanguageContext';
 import { useCart } from '../context/CartContext';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL || '';
 const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '201029449717';
 const VODAFONE_NUMBER = '01029449717';
 

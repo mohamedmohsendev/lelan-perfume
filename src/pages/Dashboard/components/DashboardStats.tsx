@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../../../context/LanguageContext';
 
 interface Stat {
     label: string;
@@ -29,6 +30,7 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
     todayRevenue,
     conversionRate
 }) => {
+    const { t } = useLanguage();
     return (
         <div className="space-y-6">
             {/* Main Stats */}
@@ -48,7 +50,7 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
 
             {/* Status Breakdown */}
             <div className="bg-background-card rounded-xl border border-border-color p-6">
-                <h2 className="text-lg font-bold tracking-widest uppercase text-primary mb-4">Order Status Breakdown</h2>
+                <h2 className="text-lg font-bold tracking-widest uppercase text-primary mb-4">{t('admin.stats.statusBreakdown')}</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
                     {statusCards.map((s, i) => (
                         <div key={i} className={`rounded-lg border p-4 text-center ${s.bg}`}>
@@ -62,17 +64,17 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
             {/* Today's Quick Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-background-card rounded-xl border border-border-color p-5">
-                    <p className="text-text-secondary text-xs uppercase tracking-wider font-semibold mb-1">Today's Orders</p>
+                    <p className="text-text-secondary text-xs uppercase tracking-wider font-semibold mb-1">{t('admin.stats.todayOrders')}</p>
                     <h3 className="text-2xl font-bold text-text-primary">{todayOrdersCount}</h3>
                 </div>
                 <div className="bg-background-card rounded-xl border border-border-color p-5">
-                    <p className="text-text-secondary text-xs uppercase tracking-wider font-semibold mb-1">Today's Revenue</p>
+                    <p className="text-text-secondary text-xs uppercase tracking-wider font-semibold mb-1">{t('admin.stats.todayRevenue')}</p>
                     <h3 className="text-2xl font-bold text-primary">{todayRevenue.toLocaleString()} EGP</h3>
                 </div>
                 <div className="bg-background-card rounded-xl border border-border-color p-5">
-                    <p className="text-text-secondary text-xs uppercase tracking-wider font-semibold mb-1">Conversion Rate</p>
+                    <p className="text-text-secondary text-xs uppercase tracking-wider font-semibold mb-1">{t('admin.stats.conversionRate')}</p>
                     <h3 className="text-2xl font-bold text-green-400">{conversionRate}%</h3>
-                    <p className="text-[10px] text-text-secondary mt-1">Delivered / Total</p>
+                    <p className="text-[10px] text-text-secondary mt-1">{t('admin.stats.deliveredTotal')}</p>
                 </div>
             </div>
         </div>

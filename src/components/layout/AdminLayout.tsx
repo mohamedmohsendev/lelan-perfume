@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Menu, X, ArrowLeft, LogOut, Package } from 'lucide-react';
+import { LayoutDashboard, Menu, X, ArrowLeft, LogOut, Package, ShoppingCart, BarChart3, Settings } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { AdminLogin } from '../../pages/AdminLogin';
 
@@ -13,7 +13,6 @@ export const AdminLayout: React.FC = () => {
         setIsMobileMenuOpen(false);
     }, [location.pathname]);
 
-    // Show loading spinner while verifying token
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background-dark">
@@ -22,10 +21,19 @@ export const AdminLayout: React.FC = () => {
         );
     }
 
-    // Not logged in → show login page
     if (!isAuthenticated) {
         return <AdminLogin />;
     }
+
+    const tabs = [
+        { tab: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} /> },
+        { tab: 'orders', label: 'Orders', icon: <ShoppingCart size={18} /> },
+        { tab: 'products', label: 'Products', icon: <Package size={18} /> },
+        { tab: 'analytics', label: 'Analytics', icon: <BarChart3 size={18} /> },
+        { tab: 'settings', label: 'Settings', icon: <Settings size={18} /> },
+    ];
+
+    const currentTab = new URLSearchParams(location.search).get('tab') || 'products';
 
     return (
         <div className="min-h-screen flex flex-col md:flex-row bg-background-dark text-text-primary">
@@ -55,22 +63,33 @@ export const AdminLayout: React.FC = () => {
                 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
             `}>
                 <div className="hidden md:block text-xl font-bold text-primary tracking-[0.15em]">LALEN ADMIN</div>
-                <nav className="flex flex-col gap-2 flex-1 mt-8 md:mt-0">
-                    <Link to="/admin?tab=dashboard" className="flex items-center gap-3 px-4 py-3 rounded hover:bg-primary/5 text-text-primary transition-colors">
-                        <LayoutDashboard size={18} /> Dashboard
-                    </Link>
-                    <Link to="/admin?tab=products" className="flex items-center gap-3 px-4 py-3 rounded text-text-primary hover:bg-primary/5 transition-colors">
-                        <Package size={18} /> Products
-                    </Link>
+                <nav className="flex flex-col gap-1 flex-1 mt-8 md:mt-0">
+                    {tabs.map(item => {
+                        const isActive = currentTab === item.tab;
+                        return (
+                            <Link
+                                key={item.tab}
+                                to={`/admin?tab=${item.tab}`}
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-sm ${
+                                    isActive
+                                        ? 'bg-primary/10 text-primary font-bold border-l-3 border-primary'
+                                        : 'text-text-secondary hover:bg-primary/5 hover:text-text-primary'
+                                }`}
+                            >
+                                {item.icon} {item.label}
+                            </Link>
+                        );
+                    })}
                 </nav>
 
                 <div className="flex flex-col gap-2">
-                    <Link to="/" className="flex items-center gap-3 px-4 py-3 rounded text-text-secondary hover:text-primary transition-colors">
+                    <Link to="/" className="flex items-center gap-3 px-4 py-3 rounded text-text-secondary hover:text-primary transition-colors text-sm">
                         <ArrowLeft size={18} /> Back to Store
                     </Link>
                     <button
                         onClick={logout}
-                        className="flex items-center gap-3 px-4 py-3 rounded text-red-400 hover:bg-red-500/10 transition-colors w-full text-left"
+                        className="flex items-center gap-3 px-4 py-3 rounded text-red-400 hover:bg-red-500/10 transition-colors w-full text-left text-sm"
                     >
                         <LogOut size={18} /> Sign Out
                     </button>

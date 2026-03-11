@@ -1,19 +1,25 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ShoppingBag, ArrowLeft, Droplet, Wind, Sun, Heart, Minus, Plus, Truck, ShieldCheck } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useProducts } from '../context/ProductContext';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
+import { useLanguage } from '../context/LanguageContext';
+import { PageTransition } from '../components/PageTransition';
 
 export const ProductDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { products, loading } = useProducts();
     const { addToCart } = useCart();
+    const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
     const product = products.find(p => p.id === id);
 
     const [selectedImage, setSelectedImage] = useState(0);
     const [quantity, setQuantity] = useState(1);
-    const [liked, setLiked] = useState(false);
+    const { t } = useLanguage();
+    const liked = product ? isInWishlist(product.id) : false;
 
     // Size Selection
     const [selectedSize, setSelectedSize] = useState<string | null>(null);
@@ -31,7 +37,7 @@ export const ProductDetails = () => {
         return (
             <div className="max-w-6xl mx-auto py-20 text-center">
                 <span className="animate-spin inline-block w-8 h-8 border-2 border-primary border-t-transparent rounded-full" />
-                <p className="mt-4 text-text-secondary">Loading product...</p>
+                <p className="mt-4 text-text-secondary">{t('loading.product')}</p>
             </div>
         );
     }
@@ -39,8 +45,8 @@ export const ProductDetails = () => {
     if (!product) {
         return (
             <div className="max-w-6xl mx-auto py-20 text-center">
-                <h1 className="text-3xl font-bold text-text-primary mb-4">Product Not Found</h1>
-                <Link to="/" className="text-primary hover:underline uppercase tracking-wider text-sm">← Back to Collection</Link>
+                <h1 className="text-3xl font-bold text-text-primary mb-4">{t('product.notFound')}</h1>
+                <Link to="/" className="text-primary hover:underline uppercase tracking-wider text-sm">{t('product.backToCollection')}</Link>
             </div>
         );
     }
@@ -49,10 +55,10 @@ export const ProductDetails = () => {
     const gallery = product.images && product.images.length > 0 ? product.images : [product.imageUrl];
 
     return (
-        <div className="max-w-7xl mx-auto py-8">
+        <PageTransition className="max-w-7xl mx-auto py-8">
             {/* Breadcrumb */}
             <Link to="/" className="inline-flex items-center gap-2 text-text-secondary hover:text-primary transition-colors mb-8 uppercase text-xs tracking-widest font-semibold">
-                <ArrowLeft size={14} /> Back to Collection
+                <ArrowLeft size={14} /> {t('product.backToCollection')}
             </Link>
 
             <div className="flex flex-col lg:flex-row gap-12">
@@ -61,11 +67,16 @@ export const ProductDetails = () => {
                     {/* Main Image */}
                     <div className="aspect-[4/5] bg-background-card border border-border-color rounded-2xl p-6 flex items-center justify-center relative overflow-hidden mb-4">
                         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-primary/10 to-transparent pointer-events-none" />
-                        <img
+                        <motion.img
+                            key={gallery[selectedImage]}
                             src={gallery[selectedImage]}
                             alt={product.name}
-                            loading="eager" // Eager for main image above fold
-                            className="w-full h-full object-contain relative z-10 transition-all duration-500"
+                            loading="eager"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.4, ease: 'easeOut' }}
+                            whileHover={{ scale: 1.05 }}
+                            className="w-full h-full object-contain relative z-10"
                         />
                     </div>
 
@@ -95,7 +106,7 @@ export const ProductDetails = () => {
                     <div className="flex items-center gap-2 text-xs text-text-secondary mb-3">
                         <span className="text-primary tracking-[0.2em] uppercase font-bold">{product.category}</span>
                         <span>•</span>
-                        <span className="tracking-wider uppercase">Limited Edition</span>
+                        <span className="tracking-wider uppercase">{t('product.limitedEdition')}</span>
                     </div>
 
                     {/* Name */}
@@ -120,22 +131,35 @@ export const ProductDetails = () => {
                                             product.price
                             }
                         </span>
-                        {product.oldPrice && (
-                            <span className="text-lg text-text-secondary line-through">{product.oldPrice}</span>
-                        )}
+                        {(() => {
+                            let oldPrice = '';
+                            if (selectedSize === '30ml') {
+                                oldPrice = product.oldPrice30ml || '';
+                            } else if (selectedSize === '50ml') {
+                                oldPrice = product.oldPrice50ml || '';
+                            } else if (selectedSize === '100ml') {
+                                oldPrice = product.oldPrice100ml || '';
+                            } else {
+                                oldPrice = product.oldPrice || '';
+                            }
+                            
+                            return oldPrice ? (
+                                <span className="text-lg text-text-secondary line-through">{oldPrice}</span>
+                            ) : null;
+                        })()}
                     </div>
 
                     {/* Size Selector */}
                     {(product.price30ml || product.price50ml || product.price100ml) && (
                         <div className="mb-8">
-                            <h3 className="text-xs uppercase tracking-widest text-text-secondary font-semibold mb-3">Select Size</h3>
+                            <h3 className="text-xs uppercase tracking-widest text-text-secondary font-semibold mb-3">{t('product.selectSize')}</h3>
                             <div className="flex flex-wrap gap-3">
                                 {product.price && (
                                     <button
                                         onClick={() => setSelectedSize(null)}
                                         className={`px-6 py-2 border rounded transition-colors text-sm font-bold tracking-wider uppercase ${selectedSize === null ? 'border-primary text-primary bg-primary/10' : 'border-border-color text-text-secondary hover:border-primary/50 hover:text-text-primary'}`}
                                     >
-                                        Standard
+                                        {t('product.standard')}
                                     </button>
                                 )}
                                 {product.price30ml && (
@@ -170,7 +194,7 @@ export const ProductDetails = () => {
                     {(product.notesTop || product.notesHeart || product.notesBase) && (
                         <div className="mb-8 bg-background-card rounded-xl border border-border-color overflow-hidden">
                             <h3 className="text-sm font-bold tracking-widest uppercase px-6 py-4 text-primary border-b border-border-color bg-background-dark">
-                                Scent Pyramid
+                                {t('product.scentPyramid')}
                             </h3>
                             <div className="divide-y divide-border-color">
                                 {product.notesTop && (
@@ -179,7 +203,7 @@ export const ProductDetails = () => {
                                             <Sun size={16} className="text-primary" />
                                         </div>
                                         <div className="flex-1">
-                                            <h4 className="font-bold text-text-primary text-xs uppercase tracking-widest">Top Notes</h4>
+                                            <h4 className="font-bold text-text-primary text-xs uppercase tracking-widest">{t('product.topNotes')}</h4>
                                             <p className="text-text-secondary text-sm mt-0.5">{product.notesTop}</p>
                                         </div>
                                     </div>
@@ -190,7 +214,7 @@ export const ProductDetails = () => {
                                             <Wind size={16} className="text-primary" />
                                         </div>
                                         <div className="flex-1">
-                                            <h4 className="font-bold text-text-primary text-xs uppercase tracking-widest">Heart Notes</h4>
+                                            <h4 className="font-bold text-text-primary text-xs uppercase tracking-widest">{t('product.heartNotes')}</h4>
                                             <p className="text-text-secondary text-sm mt-0.5">{product.notesHeart}</p>
                                         </div>
                                     </div>
@@ -201,7 +225,7 @@ export const ProductDetails = () => {
                                             <Droplet size={16} className="text-primary" />
                                         </div>
                                         <div className="flex-1">
-                                            <h4 className="font-bold text-text-primary text-xs uppercase tracking-widest">Base Notes</h4>
+                                            <h4 className="font-bold text-text-primary text-xs uppercase tracking-widest">{t('product.baseNotes')}</h4>
                                             <p className="text-text-secondary text-sm mt-0.5">{product.notesBase}</p>
                                         </div>
                                     </div>
@@ -214,7 +238,14 @@ export const ProductDetails = () => {
                     <div className="flex items-center gap-3 mb-6">
                         {/* Wishlist */}
                         <button
-                            onClick={() => setLiked(!liked)}
+                            onClick={() => {
+                                if (!product) return;
+                                if (liked) {
+                                    removeFromWishlist(product.id);
+                                } else {
+                                    addToWishlist(product);
+                                }
+                            }}
                             className={`w-12 h-12 rounded border flex items-center justify-center transition-all duration-200 flex-shrink-0 ${liked
                                 ? 'border-red-500 bg-red-500/10 text-red-500'
                                 : 'border-border-color text-text-secondary hover:border-primary hover:text-primary'
@@ -239,7 +270,7 @@ export const ProductDetails = () => {
                             className="flex-1 py-3.5 bg-primary text-black font-bold tracking-[0.12em] uppercase rounded flex items-center justify-center gap-2 hover:bg-highlight transition-colors text-sm shadow-lg shadow-primary/20"
                         >
                             <ShoppingBag size={16} />
-                            Add to Cart
+                            {t('product.addToCart')}
                         </button>
 
                         {/* Quantity */}
@@ -267,14 +298,14 @@ export const ProductDetails = () => {
                     {/* Trust badges */}
                     <div className="flex flex-wrap gap-4 text-xs text-text-secondary mt-auto pt-6 border-t border-border-color">
                         <span className="flex items-center gap-1.5">
-                            <Truck size={14} className="text-primary" /> Free shipping over 500 EGP
+                            <Truck size={14} className="text-primary" /> {t('product.freeShipping')}
                         </span>
                         <span className="flex items-center gap-1.5">
-                            <ShieldCheck size={14} className="text-primary" /> Authentic Guarantee
+                            <ShieldCheck size={14} className="text-primary" /> {t('product.authentic')}
                         </span>
                     </div>
                 </div>
             </div>
-        </div>
+        </PageTransition>
     );
 };

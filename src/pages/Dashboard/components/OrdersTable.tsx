@@ -1,5 +1,6 @@
 import React, { useDeferredValue } from 'react';
 import { Download, Trash2 } from 'lucide-react';
+import { useLanguage } from '../../../context/LanguageContext';
 import type { Order } from '../types';
 
 interface OrdersTableProps {
@@ -23,6 +24,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
     onUpdateStatus,
     onDeleteOrder
 }) => {
+    const { t } = useLanguage();
     const deferredSearchTerm = useDeferredValue(searchTerm);
 
     const filteredOrders = React.useMemo(() => {
@@ -38,25 +40,25 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
     return (
         <div className="bg-background-card rounded-xl border border-border-color overflow-hidden flex flex-col h-[700px]">
             <div className="p-6 border-b border-border-color flex flex-col md:flex-row justify-between items-start md:items-center bg-background-dark gap-4">
-                <h2 className="text-lg font-bold tracking-widest uppercase text-primary">Orders</h2>
+                <h2 className="text-lg font-bold tracking-widest uppercase text-primary">{t('admin.orders.title')}</h2>
                 <div className="flex items-center gap-3">
                     <button
                         onClick={onExport}
                         className="flex items-center gap-2 bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 px-4 py-2 rounded text-sm font-semibold transition-colors"
                     >
                         <Download size={16} />
-                        Export
+                        {t('admin.orders.export')}
                     </button>
                     <button
                         onClick={onClearAll}
                         className="flex items-center gap-2 bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500/20 px-4 py-2 rounded text-sm font-semibold transition-colors"
                     >
                         <Trash2 size={16} />
-                        Export & Clear
+                        {t('admin.orders.exportClear')}
                     </button>
                     <input
                         type="text"
-                        placeholder="Search by ID, Name or Phone..."
+                        placeholder={t('admin.orders.searchPlaceholder')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full md:w-64 bg-white dark:bg-[#1A1C1D] text-gray-900 dark:text-gray-100 border border-border-color rounded p-2 text-sm focus:border-primary outline-none transition-colors"
@@ -64,19 +66,19 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                 </div>
             </div>
 
-            {/* Desktop Table View - Hidden on mobile */}
+            {/* Desktop Table View */}
             <div className="flex-1 overflow-auto hidden md:block">
                 {loading ? (
-                    <div className="p-12 text-center text-text-secondary italic tracking-widest uppercase text-xs">Curating orders...</div>
+                    <div className="p-12 text-center text-text-secondary italic tracking-widest uppercase text-xs">{t('admin.orders.loading')}</div>
                 ) : (
                     <table className="w-full text-left border-collapse min-w-[800px]">
                         <thead className="bg-background-dark text-text-secondary uppercase text-[10px] tracking-[0.2em] font-black border-b border-border-color/20 sticky top-0 z-10">
                             <tr>
-                                <th className="p-6 font-semibold whitespace-nowrap">Order / Date</th>
-                                <th className="p-6 font-semibold">Customer</th>
-                                <th className="p-6 font-semibold text-center">Items</th>
-                                <th className="p-6 font-semibold whitespace-nowrap">Total</th>
-                                <th className="p-6 font-semibold text-right">Status</th>
+                                <th className="p-6 font-semibold whitespace-nowrap">{t('admin.orders.date')}</th>
+                                <th className="p-6 font-semibold">{t('admin.orders.customer')}</th>
+                                <th className="p-6 font-semibold text-center">{t('admin.orders.items')}</th>
+                                <th className="p-6 font-semibold whitespace-nowrap">{t('admin.orders.total')}</th>
+                                <th className="p-6 font-semibold text-right">{t('admin.orders.status')}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border-color/10 text-sm">
@@ -116,7 +118,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                                         </div>
                                         {order.notes && (
                                             <div className="mt-2 text-[9px] text-primary/80 bg-primary/5 p-2 rounded border border-primary/20 italic font-medium leading-relaxed">
-                                                Note: {order.notes}
+                                                {t('admin.orders.note')}: {order.notes}
                                             </div>
                                         )}
                                     </td>
@@ -142,18 +144,18 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                                                 ${order.status === 'لم يتم' ? 'bg-red-500/5 text-red-500 border-red-500/20 hover:border-red-500/50' : ''}
                                             `}
                                             >
-                                                <option value="معلق">Pending (معلق)</option>
-                                                <option value="تم تأكيده">Confirmed (مؤكد)</option>
-                                                <option value="تم توصيله">Delivered (توصيل)</option>
-                                                <option value="تم ارجاعه">Returned (مرتجع)</option>
-                                                <option value="لم يتم">Failed (فشل)</option>
+                                                <option value="معلق">{t('admin.stats.pending')} (معلق)</option>
+                                                <option value="تم تأكيده">{t('admin.stats.confirmed')} (مؤكد)</option>
+                                                <option value="تم توصيله">{t('admin.stats.delivered')} (توصيل)</option>
+                                                <option value="تم ارجاعه">{t('admin.stats.returned')} (مرتجع)</option>
+                                                <option value="لم يتم">{t('admin.stats.failed')} (فشل)</option>
                                             </select>
                                             <button
                                                 onClick={() => onDeleteOrder(order.id)}
                                                 className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] text-red-500/40 hover:text-red-500 transition-all group/btn"
                                             >
                                                 <Trash2 size={12} className="opacity-40 group-hover/btn:opacity-100" />
-                                                <span>حذف السجل</span>
+                                                <span>{t('admin.orders.deleteRecord')}</span>
                                             </button>
                                         </div>
                                     </td>
@@ -164,14 +166,13 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                 )}
             </div>
 
-            {/* Mobile Card View - Visible only on small screens */}
+            {/* Mobile Card View */}
             <div className="flex-1 overflow-auto md:hidden p-4 space-y-4">
                 {loading ? (
-                    <div className="p-12 text-center text-text-secondary animate-pulse tracking-widest uppercase text-xs">Curating orders...</div>
+                    <div className="p-12 text-center text-text-secondary animate-pulse tracking-widest uppercase text-xs">{t('admin.orders.loading')}</div>
                 ) : (
                     filteredOrders.map(order => (
                         <div key={order.id} className="bg-background-dark/40 rounded-2xl border border-border-color/30 p-5 space-y-4 shadow-xl">
-                            {/* Header: ID and Date */}
                             <div className="flex justify-between items-start border-b border-border-color/10 pb-3">
                                 <div>
                                     <div className="font-black text-primary text-xs tracking-[0.2em] uppercase mb-1">
@@ -183,18 +184,14 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                                 </div>
                                 <div className="text-right">
                                     <div className="font-black text-highlight text-lg leading-tight">{order.total.toLocaleString()}</div>
-                                    <div className="text-[9px] text-text-secondary font-black tracking-widest uppercase opacity-40">EGP TOTAL</div>
+                                    <div className="text-[9px] text-text-secondary font-black tracking-widest uppercase opacity-40">EGP</div>
                                 </div>
                             </div>
-
-                            {/* Customer Info */}
                             <div className="space-y-1">
                                 <div className="text-sm font-black text-text-primary tracking-wide">{order.customer_name}</div>
                                 <div className="text-xs text-primary font-bold tracking-widest">{order.phone}</div>
                                 <div className="text-[11px] text-text-secondary leading-relaxed opacity-80">{order.address}</div>
                             </div>
-
-                            {/* Items Preview */}
                             <div className="bg-black/20 rounded-xl p-3 space-y-2 border border-border-color/5">
                                 {order.cart?.map((item, idx) => (
                                     <div key={idx} className="flex justify-between text-[11px]">
@@ -210,8 +207,6 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                                     </div>
                                 )}
                             </div>
-
-                            {/* Actions: Status and Delete */}
                             <div className="flex gap-2 pt-2">
                                 <select
                                     value={order.status}
@@ -225,11 +220,11 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                                     ${order.status === 'لم يتم' ? 'bg-red-500/5 text-red-500 border-red-500/20' : ''}
                                 `}
                                 >
-                                    <option value="معلق">معلق</option>
-                                    <option value="تم تأكيده">مؤكد</option>
-                                    <option value="تم توصيله">تم التوصيل</option>
-                                    <option value="تم ارجاعه">مرتجع</option>
-                                    <option value="لم يتم">فشل</option>
+                                    <option value="معلق">{t('admin.stats.pending')}</option>
+                                    <option value="تم تأكيده">{t('admin.stats.confirmed')}</option>
+                                    <option value="تم توصيله">{t('admin.stats.delivered')}</option>
+                                    <option value="تم ارجاعه">{t('admin.stats.returned')}</option>
+                                    <option value="لم يتم">{t('admin.stats.failed')}</option>
                                 </select>
                                 <button
                                     onClick={() => onDeleteOrder(order.id)}
@@ -244,7 +239,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
             </div>
 
             {!loading && filteredOrders.length === 0 && (
-                <div className="p-12 text-center text-text-secondary tracking-widest uppercase text-xs opacity-50">No orders found.</div>
+                <div className="p-12 text-center text-text-secondary tracking-widest uppercase text-xs opacity-50">{t('admin.orders.empty')}</div>
             )}
         </div>
     );

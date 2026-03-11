@@ -1,5 +1,6 @@
 import React from 'react';
 import { Megaphone, Edit2, Layout, Home, User, Users, Image as ImageLucide, Upload, Zap } from 'lucide-react';
+import { useLanguage } from '../../../context/LanguageContext';
 
 interface SettingsTabProps {
     settings: any;
@@ -16,10 +17,12 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
     handleSettingUpload,
     API_URL
 }) => {
+    const { t } = useLanguage();
+
     const settingsSections = [
         {
             id: 'general',
-            title: 'General Settings',
+            title: t('admin.settings.general'),
             icon: <Layout size={20} />,
             items: [
                 { key: 'logo_url', label: 'Website Logo', desc: 'Main logo shown in header & footer', type: 'image' },
@@ -27,7 +30,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
         },
         {
             id: 'home',
-            title: 'Home Page',
+            title: t('admin.settings.homePage'),
             icon: <Home size={20} />,
             items: [
                 { key: 'hero_bg', label: 'Home Hero Background', desc: 'Background image for the hero section', type: 'image' },
@@ -35,7 +38,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
         },
         {
             id: 'men',
-            title: "Men's Collection",
+            title: t('admin.settings.menCollection'),
             icon: <User size={20} />,
             items: [
                 { key: 'men_bg', label: "Background Image", desc: 'Background for Men category page', type: 'image' },
@@ -45,7 +48,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
         },
         {
             id: 'women',
-            title: "Women's Collection",
+            title: t('admin.settings.womenCollection'),
             icon: <User size={20} />,
             items: [
                 { key: 'women_bg', label: "Background Image", desc: 'Background for Women category page', type: 'image' },
@@ -55,7 +58,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
         },
         {
             id: 'unisex',
-            title: 'Unisex Collection',
+            title: t('admin.settings.unisexCollection'),
             icon: <Users size={20} />,
             items: [
                 { key: 'unisex_bg', label: 'Background Image', desc: 'Background for Unisex category page', type: 'image' },
@@ -71,13 +74,13 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
             <section className="space-y-6">
                 <div className="flex items-center gap-3 border-b border-border-color pb-4">
                     <Megaphone size={22} className="text-primary" />
-                    <h2 className="text-xl font-bold text-text-primary tracking-widest uppercase">Marketing Banner</h2>
+                    <h2 className="text-xl font-bold text-text-primary tracking-widest uppercase">{t('admin.settings.banner')}</h2>
                 </div>
                 <div className="bg-background-card rounded-xl border border-border-color overflow-hidden">
                     <div className="p-6 border-b border-border-color bg-background-dark/30 flex items-center justify-between">
                         <div>
-                            <h3 className="font-bold text-text-primary text-sm tracking-wider uppercase">Banner Visibility</h3>
-                            <p className="text-xs text-text-secondary mt-1">Enable/disable the announcement bar at the top of the site</p>
+                            <h3 className="font-bold text-text-primary text-sm tracking-wider uppercase">{t('admin.settings.bannerVisibility')}</h3>
+                            <p className="text-xs text-text-secondary mt-1">{t('admin.settings.bannerDesc')}</p>
                         </div>
                         <button
                             onClick={async () => {
@@ -100,13 +103,13 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
                     </div>
                     <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-4">
-                            <label className="block text-xs uppercase tracking-widest text-text-secondary font-bold">Banner Message</label>
+                            <label className="block text-xs uppercase tracking-widest text-text-secondary font-bold">{t('admin.settings.bannerMessage')}</label>
                             <div className="flex gap-2">
                                 <input
                                     type="text"
                                     defaultValue={settings.banner_text || ''}
                                     id="banner-text-input"
-                                    placeholder="Special offer goes here..."
+                                    placeholder={t('admin.settings.bannerPlaceholder')}
                                     className="flex-1 bg-white dark:bg-[#1A1C1D] text-gray-900 dark:text-white border border-border-color rounded p-3 text-sm focus:outline-none focus:border-primary transition-colors"
                                 />
                                 <button
@@ -125,20 +128,20 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
                                     }}
                                     className="px-6 py-2 bg-primary text-black font-bold text-xs uppercase tracking-wider rounded hover:bg-highlight transition-colors"
                                 >
-                                    Save
+                                    {t('admin.settings.save')}
                                 </button>
                             </div>
                         </div>
 
                         <div className="space-y-4">
-                            <label className="block text-xs uppercase tracking-widest text-text-secondary font-bold">Live Preview</label>
+                            <label className="block text-xs uppercase tracking-widest text-text-secondary font-bold">{t('admin.settings.livePreview')}</label>
                             {settings.banner_text ? (
                                 <div className="bg-primary text-black text-center py-3 px-4 text-xs font-bold rounded uppercase tracking-widest shadow-lg">
                                     {settings.banner_text}
                                 </div>
                             ) : (
                                 <div className="border border-dashed border-border-color rounded py-3 px-4 text-xs text-text-secondary text-center italic">
-                                    No message configured
+                                    {t('admin.settings.noMessage')}
                                 </div>
                             )}
                         </div>
@@ -150,12 +153,12 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
             <section className="space-y-6">
                 <div className="flex items-center gap-3 border-b border-border-color pb-4">
                     <Zap size={22} className="text-yellow-400" />
-                    <h2 className="text-xl font-bold text-text-primary tracking-widest uppercase">Performance & Assets</h2>
+                    <h2 className="text-xl font-bold text-text-primary tracking-widest uppercase">{t('admin.settings.performance')}</h2>
                 </div>
                 <div className="bg-background-card rounded-xl border border-border-color p-6 flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="flex-1">
-                        <h3 className="font-bold text-text-primary text-sm tracking-wider uppercase mb-1">Image Optimization (WebP)</h3>
-                        <p className="text-xs text-text-secondary">Compress all existing product images and convert them to WebP format for faster page loads. This may take a few minutes.</p>
+                        <h3 className="font-bold text-text-primary text-sm tracking-wider uppercase mb-1">{t('admin.settings.optimizeTitle')}</h3>
+                        <p className="text-xs text-text-secondary">{t('admin.settings.optimizeDesc')}</p>
                     </div>
                     <button
                         onClick={async (e) => {
@@ -182,7 +185,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
                         }}
                         className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-xs uppercase tracking-widest px-6 py-3 rounded transition-colors flex items-center gap-2 whitespace-nowrap"
                     >
-                        <Zap size={16} /> Optimize All Images
+                        <Zap size={16} /> {t('admin.settings.optimizeBtn')}
                     </button>
                 </div>
             </section>
@@ -209,13 +212,13 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
                                                 <div className="relative aspect-video rounded-lg overflow-hidden border border-border-color bg-background-dark group">
                                                     <img src={settings[item.key]} alt={item.label} className="w-full h-full object-contain p-2" />
                                                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                        <p className="text-[10px] text-white font-bold uppercase tracking-widest">Current Image</p>
+                                                        <p className="text-[10px] text-white font-bold uppercase tracking-widest">{t('admin.settings.currentImage')}</p>
                                                     </div>
                                                 </div>
                                             ) : (
                                                 <div className="aspect-video rounded-lg border-2 border-dashed border-border-color flex flex-col items-center justify-center text-text-secondary text-[10px] tracking-widest uppercase gap-2 bg-background-dark/20">
                                                     <ImageLucide size={20} className="opacity-20" />
-                                                    <span>Empty</span>
+                                                    <span>{t('admin.settings.empty')}</span>
                                                 </div>
                                             )}
 
@@ -223,11 +226,11 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
                                                 {settingsUploading === item.key ? (
                                                     <>
                                                         <span className="animate-spin inline-block w-3 h-3 border-2 border-current border-t-transparent rounded-full" />
-                                                        Processing...
+                                                        {t('admin.settings.processing')}
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <Upload size={12} /> Replace Image
+                                                        <Upload size={12} /> {t('admin.settings.replaceImage')}
                                                     </>
                                                 )}
                                                 <input
@@ -244,7 +247,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
                                     ) : (
                                         <>
                                             <div className="space-y-2">
-                                                <p className="text-[10px] text-text-secondary uppercase tracking-widest font-bold">Content</p>
+                                                <p className="text-[10px] text-text-secondary uppercase tracking-widest font-bold">{t('admin.settings.content')}</p>
                                                 {item.key.includes('description') ? (
                                                     <textarea
                                                         defaultValue={settings[item.key] || ''}
@@ -292,7 +295,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
                                                 }}
                                                 className="w-full py-2 bg-primary text-black font-bold text-[10px] uppercase tracking-widest rounded hover:bg-highlight transition-colors flex items-center justify-center min-h-[36px] mt-4"
                                             >
-                                                Save Changes
+                                                {t('admin.settings.saveChanges')}
                                             </button>
                                         </>
                                     )}

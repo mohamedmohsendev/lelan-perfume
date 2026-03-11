@@ -27,9 +27,9 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                 <div>
                     <h2 className="text-2xl font-bold tracking-[0.2em] uppercase text-primary mb-1 flex items-center gap-3">
                         <Layers className="text-primary" size={24} />
-                        Product Collection
+                        {t('admin.products.title')}
                     </h2>
-                    <p className="text-text-secondary text-xs tracking-widest uppercase">Manage your luxury perfume inventory</p>
+                    <p className="text-text-secondary text-xs tracking-widest uppercase">{t('admin.products.subtitle')}</p>
                 </div>
                 <motion.button
                     whileHover={{ scale: 1.02 }}
@@ -41,7 +41,7 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                 </motion.button>
             </div>
 
-            {/* Desktop Table View - Hidden on mobile */}
+            {/* Desktop Table View */}
             <div className="overflow-x-auto custom-scrollbar hidden md:block">
                 {loading ? (
                     <div className="p-20 text-center">
@@ -51,18 +51,18 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                                 transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                                 className="w-12 h-12 border-2 border-primary border-t-transparent rounded-full"
                             />
-                            <p className="text-text-secondary tracking-widest uppercase text-xs">Curating products...</p>
+                            <p className="text-text-secondary tracking-widest uppercase text-xs">{t('admin.products.loading')}</p>
                         </div>
                     </div>
                 ) : (
                     <table className="w-full text-left min-w-[900px]">
                         <thead className="bg-background-dark/50 text-text-secondary uppercase text-[10px] tracking-[0.2em] font-black border-b border-border-color/20">
                             <tr>
-                                <th className="px-8 py-5">Essential Details</th>
-                                <th className="px-8 py-5">Classification</th>
-                                <th className="px-8 py-5">Valuation</th>
-                                <th className="px-8 py-5">Inventory</th>
-                                <th className="px-8 py-5 text-right">Actions</th>
+                                <th className="px-8 py-5">{t('admin.products.details')}</th>
+                                <th className="px-8 py-5">{t('admin.products.classification')}</th>
+                                <th className="px-8 py-5">{t('admin.products.valuation')}</th>
+                                <th className="px-8 py-5">{t('admin.products.inventory')}</th>
+                                <th className="px-8 py-5 text-right">{t('admin.products.actions')}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border-color/10">
@@ -108,7 +108,7 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-2 text-text-secondary">
                                                 <Package size={14} className="text-primary/60" />
-                                                <span className="text-xs font-bold tracking-widest uppercase">{(product.images || []).length} Variants</span>
+                                                <span className="text-xs font-bold tracking-widest uppercase">{(product.images || []).length} {t('admin.products.variants')}</span>
                                             </div>
                                         </td>
                                         <td className="px-8 py-6 text-right">
@@ -121,7 +121,7 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                                                         onEditProduct(product);
                                                     }}
                                                     className="text-text-secondary hover:text-primary transition-colors p-3 rounded-xl border border-transparent hover:border-primary/20"
-                                                    title="Edit Product"
+                                                    title={t('admin.edit')}
                                                 >
                                                     <Edit2 size={18} />
                                                 </motion.button>
@@ -133,7 +133,7 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                                                         onDeleteProduct(product.id, product.name);
                                                     }}
                                                     className="text-text-secondary hover:text-red-500 transition-colors p-3 rounded-xl border border-transparent hover:border-red-500/20"
-                                                    title="Delete Product"
+                                                    title="Delete"
                                                 >
                                                     <Trash2 size={18} />
                                                 </motion.button>
@@ -147,10 +147,10 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                 )}
             </div>
 
-            {/* Mobile Card View - Visible only on small screens */}
+            {/* Mobile Card View */}
             <div className="md:hidden p-4 space-y-4">
                 {loading ? (
-                    <div className="p-12 text-center text-text-secondary animate-pulse tracking-widest uppercase text-xs">Curating products...</div>
+                    <div className="p-12 text-center text-text-secondary animate-pulse tracking-widest uppercase text-xs">{t('admin.products.loading')}</div>
                 ) : (
                     <AnimatePresence>
                         {products.map((product, index) => (
@@ -186,7 +186,7 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                                             </div>
                                             <div className="text-[9px] text-text-secondary font-bold uppercase tracking-widest flex items-center gap-1">
                                                 <Package size={12} className="text-primary/50" />
-                                                {(product.images || []).length} VARIANTS
+                                                {(product.images || []).length} {t('admin.products.variants')}
                                             </div>
                                         </div>
                                     </div>
@@ -203,10 +203,10 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                         <div className="w-20 h-20 bg-primary/5 rounded-full flex items-center justify-center mx-auto border border-primary/10">
                             <Package size={32} className="text-primary/30" />
                         </div>
-                        <h3 className="text-lg font-bold text-text-primary tracking-widest uppercase">No collections found</h3>
-                        <p className="text-text-secondary text-sm">Begin your luxury journey by adding your first masterpiece to the collection.</p>
+                        <h3 className="text-lg font-bold text-text-primary tracking-widest uppercase">{t('admin.products.empty')}</h3>
+                        <p className="text-text-secondary text-sm">{t('admin.products.emptyDesc')}</p>
                         <button onClick={onAddProduct} className="text-primary font-bold text-xs tracking-widest uppercase hover:text-highlight transition-colors flex items-center gap-2 mx-auto mt-4">
-                            <Plus size={14} /> Add Product
+                            <Plus size={14} /> {t('admin.add')}
                         </button>
                     </div>
                 </div>
